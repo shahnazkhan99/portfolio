@@ -87,6 +87,7 @@ a:focus-visible{outline:2px solid #002BFF;outline-offset:3px;border-radius:999px
 [data-m="ob-wrap"] h2{font-size:48px!important;}
 #contrib [data-obsrc]{font-size:clamp(46px,14.5vw,72px)!important;}
 [data-m="ob-cards"]{grid-template-columns:minmax(0,1fr)!important;gap:36px!important;}
+[data-ob-layer]{overscroll-behavior-x:none;}[data-ob-layer] > div{overflow-x:clip;}
 [data-m="ob-shot"]{aspect-ratio:279/380!important;background:#f4f4f4!important;padding:calc((100cqw - 40px) * 0.172) 0 0!important;gap:calc((100cqw - 40px) * 0.036)!important;}
 [data-m="ob-shot"] img{flex:1!important;min-height:0!important;}
 [data-m="ob-d1"]{margin-top:40px!important;}
@@ -648,7 +649,14 @@ a:focus-visible{outline:2px solid #002BFF;outline-offset:3px;border-radius:999px
 <script type="text/x-dc" data-dc-script data-props="{&quot;speed&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0.5,&quot;max&quot;:2,&quot;step&quot;:0.1,&quot;unit&quot;:&quot;x&quot;,&quot;tsType&quot;:&quot;number&quot;},&quot;floatAmount&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:18,&quot;min&quot;:0,&quot;max&quot;:40,&quot;step&quot;:1,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;},&quot;replay&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
 class Component extends DCLogic {
   state = { step: 0, view: 'home', phase: 0 };
-  componentDidMount() { this.bindHScroll(); try { const io4 = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.dataset.seen = '1'; io4.unobserve(e.target); } }), { threshold: 0.3 }); document.querySelectorAll('[data-m="ar-card"]').forEach(c => io4.observe(c)); } catch (e) {} { const syncSol = () => { const p = document.querySelector('[data-m="sub-h"]'), s = document.querySelector('[data-sol-h]'); if (p && s) { const fz = getComputedStyle(p).fontSize; s.style.setProperty('font-size', fz, 'important'); if (window.matchMedia('(max-width: 760px)').matches) document.querySelectorAll('[data-m="gm-grid"] h4, [data-m="fs-wrap"] h3').forEach(h => h.style.setProperty('font-size', fz, 'important')); } }; syncSol(); window.addEventListener('resize', syncSol); if (document.fonts) document.fonts.ready.then(syncSol); } if (window.matchMedia('(max-width: 760px)').matches) { document.querySelectorAll('[data-m="ob-d1"], [data-m="ob-d"]').forEach(el => { el.style.transform = 'translateY(24px)'; el.style.filter = 'blur(8px)'; }); try { const cards = [...document.querySelectorAll('[data-ob="1"], [data-ob="2"]')]; cards.forEach(c => { c.style.transform = c.dataset.ob === '1' ? 'translateX(40vw)' : 'translateX(-40vw)'; c.style.opacity = '0'; c.style.filter = 'blur(8px)'; c.style.transition = 'opacity .8s ease, transform 1s cubic-bezier(.2,.8,.2,1), filter .8s ease'; }); const io3 = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; io3.unobserve(e.target); const tg = e.target, lay = tg.closest('[data-ob-layer]'), tt = document.querySelector('[data-obtitle]'); const go = () => { const lo = lay ? parseFloat(getComputedStyle(lay).opacity) : 1, vis = lay ? getComputedStyle(lay).visibility !== 'hidden' : true, to = tt ? parseFloat(getComputedStyle(tt).opacity) : 1; if (lo < 0.6 || !vis || to < 0.6 || !this._obReady) { setTimeout(go, 150); return; } tg.style.opacity = '1'; tg.style.transform = 'none'; tg.style.filter = 'none'; }; go(); }), { threshold: 0.25 }); cards.forEach(c => io3.observe(c)); this._obIo = io3; } catch (e) {} try { const blocks = [...document.querySelectorAll('[data-m="ob-d1"], [data-m="ob-d"]')]; const io2 = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; io2.unobserve(e.target); const go = () => { if (parseFloat(getComputedStyle(e.target).opacity) < 0.6) { setTimeout(go, 150); return; } run(e.target); }; go(); }), { threshold: 0, rootMargin: '0px 0px -18% 0px' }); const run = tg => { let t = 0; [...tg.querySelectorAll('h4, p')].forEach(el => { const ws = [...el.querySelectorAll('[data-rw]')]; ws.forEach((s, i) => { const d = (t + i * 0.018).toFixed(3); s.style.transition = 'opacity .5s ease ' + d + 's, transform .6s cubic-bezier(.2,.8,.2,1) ' + d + 's, filter .5s ease ' + d + 's'; s.style.opacity = '1'; s.style.transform = 'none'; s.style.filter = 'none'; }); t += ws.length * 0.018 + 0.35; }); }; blocks.forEach(b => { b.querySelectorAll('h4, p').forEach(el => { const ws = el.textContent.trim().split(/\s+/); el.textContent = ''; ws.forEach((w, i) => { const s = document.createElement('span'); s.dataset.rw = ''; s.textContent = w; s.style.cssText = 'display:inline-block;opacity:0;transform:translateY(0.4em);filter:blur(6px);'; el.appendChild(s); if (i < ws.length - 1) el.appendChild(document.createTextNode(' ')); }); }); io2.observe(b); }); } catch (e) {} } if (window.matchMedia('(max-width: 760px)').matches) { const pi = new Image(); pi.fetchPriority = 'high'; pi.src = 'assets/luv-couple-s.webp'; pi.decode && pi.decode().catch(() => {}); this._pi = pi; } try { const io = new IntersectionObserver(es => es.forEach(e => { e.target.style.animationPlayState = e.isIntersecting ? 'running' : 'paused'; })); document.querySelectorAll('[data-marquee]').forEach(el => io.observe(el)); this._mqIO = io; } catch (e) {} this.play(); this.bindNav(); this.bindCamp(); this.bindStory(); try { if (sessionStorage.getItem('pf-go-work')) { sessionStorage.removeItem('pf-go-work'); setTimeout(() => this.rollToWork(), 600); } } catch (e) {} }
+  _stopAt(el, y) {
+    if (el._hardLock) { el.scrollTop = y; return; }
+    clearTimeout(el._stT);
+    if (!el._stOn) { el._stPrev = [el.style.getPropertyValue('overflow-y'), el.style.getPropertyPriority('overflow-y')]; el._stOn = true; }
+    el.style.setProperty('overflow-y', 'hidden', 'important'); el.scrollTop = y;
+    el._stT = setTimeout(() => { el._stOn = false; if (el._hardLock) return; const [v, p] = el._stPrev; if (v && v !== 'hidden') el.style.setProperty('overflow-y', v, p); else el.style.setProperty('overflow-y', 'auto'); }, 90);
+  }
+  componentDidMount() { this.bindHScroll(); try { const io4 = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.dataset.seen = '1'; io4.unobserve(e.target); } }), { threshold: 0.3 }); document.querySelectorAll('[data-m="ar-card"]').forEach(c => io4.observe(c)); } catch (e) {} { const syncSol = () => { const p = document.querySelector('[data-m="sub-h"]'), s = document.querySelector('[data-sol-h]'); if (p && s) { const fz = getComputedStyle(p).fontSize; s.style.setProperty('font-size', fz, 'important'); if (window.matchMedia('(max-width: 760px)').matches) document.querySelectorAll('[data-m="gm-grid"] h4, [data-m="fs-wrap"] h3').forEach(h => h.style.setProperty('font-size', fz, 'important')); } }; syncSol(); window.addEventListener('resize', syncSol); if (document.fonts) document.fonts.ready.then(syncSol); } if (window.matchMedia('(max-width: 760px)').matches) { document.querySelectorAll('[data-m="ob-d1"], [data-m="ob-d"]').forEach(el => { el.style.transform = 'translateY(24px)'; el.style.filter = 'blur(8px)'; }); try { const cards = [...document.querySelectorAll('[data-ob="1"], [data-ob="2"]')]; cards.forEach(c => { c.style.transform = c.dataset.ob === '1' ? 'translate3d(40vw,0,0)' : 'translate3d(-40vw,0,0)'; c.style.opacity = '0'; c.style.filter = 'none'; c.style.willChange = 'transform, opacity'; c.style.backfaceVisibility = 'hidden'; c.style.transition = 'opacity .6s ease, transform .85s cubic-bezier(.23,1,.32,1)'; }); const io3 = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; io3.unobserve(e.target); const tg = e.target, lay = tg.closest('[data-ob-layer]'), tt = document.querySelector('[data-obtitle]'); const go = () => { const lo = lay ? parseFloat(getComputedStyle(lay).opacity) : 1, vis = lay ? getComputedStyle(lay).visibility !== 'hidden' : true, to = tt ? parseFloat(getComputedStyle(tt).opacity) : 1; if (lo < 0.6 || !vis || to < 0.6 || !this._obReady) { setTimeout(go, 150); return; } tg.style.opacity = '1'; tg.style.transform = 'translate3d(0,0,0)'; tg.style.filter = 'none'; }; go(); }), { threshold: 0.25 }); cards.forEach(c => io3.observe(c)); this._obIo = io3; } catch (e) {} try { const blocks = [...document.querySelectorAll('[data-m="ob-d1"], [data-m="ob-d"]')]; const io2 = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; io2.unobserve(e.target); const go = () => { if (parseFloat(getComputedStyle(e.target).opacity) < (window.matchMedia('(max-width: 760px)').matches ? 0.25 : 0.6)) { setTimeout(go, 80); return; } run(e.target); }; go(); }), { threshold: 0, rootMargin: '0px 0px -18% 0px' }); const run = tg => { const fm = window.matchMedia('(max-width: 760px)').matches, st = fm ? 0.005 : 0.018, gp = fm ? 0.08 : 0.35, du = fm ? '.22s' : '.5s', du2 = fm ? '.28s' : '.6s'; let t = 0; [...tg.querySelectorAll('h4, p')].forEach(el => { const ws = [...el.querySelectorAll('[data-rw]')]; ws.forEach((s, i) => { const d = (t + i * st).toFixed(3); s.style.transition = 'opacity ' + du + ' ease ' + d + 's, transform ' + du2 + ' cubic-bezier(.2,.8,.2,1) ' + d + 's, filter ' + du + ' ease ' + d + 's'; s.style.opacity = '1'; s.style.transform = 'none'; s.style.filter = 'none'; }); t += ws.length * st + gp; }); }; blocks.forEach(b => { b.querySelectorAll('h4, p').forEach(el => { const ws = el.textContent.trim().split(/\s+/); el.textContent = ''; ws.forEach((w, i) => { const s = document.createElement('span'); s.dataset.rw = ''; s.textContent = w; s.style.cssText = 'display:inline-block;opacity:0;transform:translateY(0.4em);filter:blur(6px);'; el.appendChild(s); if (i < ws.length - 1) el.appendChild(document.createTextNode(' ')); }); }); io2.observe(b); }); } catch (e) {} } if (window.matchMedia('(max-width: 760px)').matches) { const pi = new Image(); pi.fetchPriority = 'high'; pi.src = 'assets/luv-couple-s.webp'; pi.decode && pi.decode().catch(() => {}); this._pi = pi; } try { const io = new IntersectionObserver(es => es.forEach(e => { e.target.style.animationPlayState = e.isIntersecting ? 'running' : 'paused'; })); document.querySelectorAll('[data-marquee]').forEach(el => io.observe(el)); this._mqIO = io; } catch (e) {} this.play(); this.bindNav(); this.bindCamp(); this.bindStory(); try { if (sessionStorage.getItem('pf-go-work')) { sessionStorage.removeItem('pf-go-work'); setTimeout(() => this.rollToWork(), 600); } } catch (e) {} }
   bindStory() {
     const p = document.querySelector('[data-story-p]'); if (!p) return;
     if (!p.querySelector('span')) p.innerHTML = p.textContent.trim().split(/\s+/).map(w => '<span style="color:rgba(33,33,33,0.1);transition:color .15s ease;">' + w + '</span>').join(' ');
@@ -677,7 +685,9 @@ class Component extends DCLogic {
     const count = (n, delay) => tm.push(setTimeout(() => { const to = +n.dataset.to, d = +n.dataset.dec, t0 = performance.now(); const f = now => { const k = Math.min(1, (now - t0) / 1400), e = 1 - Math.pow(1 - k, 3); n.textContent = (to * e).toFixed(d); if (k < 1) raf.push(requestAnimationFrame(f)); }; raf.push(requestAnimationFrame(f)); }, delay));
     const expand = (t) => {
       full = true;
-      const lockEl = layer === window ? document.documentElement : layer, ov = lockEl.style.overflowY;
+      const lockEl = layer === window ? document.documentElement : layer;
+      if (lockEl._ovOrig === undefined) lockEl._ovOrig = lockEl.style.overflowY === 'hidden' ? (layer === window ? '' : 'auto') : lockEl.style.overflowY;
+      const ov = lockEl._ovOrig; lockEl._hardLock = true;
       lockEl.style.overflowY = 'hidden';
       ar.style.overflow = 'visible'; ar.style.zIndex = '30'; ar.dataset.exp = '1';
       const b = layer === window ? { top: 0, left: 0, width: innerWidth } : layer.getBoundingClientRect();
@@ -689,11 +699,11 @@ class Component extends DCLogic {
       tm.push(setTimeout(() => {
         ar.style.background = '#002BFF';
         if (layer === window) window.scrollTo(0, scrollY + ar.getBoundingClientRect().top); else layer.scrollTop += ar.getBoundingClientRect().top - layer.getBoundingClientRect().top;
-        ar.style.overflow = 'hidden'; ar.style.zIndex = ''; delete ar.dataset.exp; lockEl.style.overflowY = ov;
+        ar.style.overflow = 'hidden'; ar.style.zIndex = ''; delete ar.dataset.exp; lockEl._hardLock = false; lockEl.style.overflowY = ov;
         els.forEach(n => { n.style.opacity = '1'; n.style.transform = 'none'; n.style.filter = 'none'; }); nums.forEach((n, i) => count(n, 150 + i * 150));
       }, mq ? 720 : 1150));
     };
-    const collapse = () => { full = false; shifted = false; if (zoomed) { zoomed = false; this._flSet && this._flSet(false); this._fsSet && this._fsSet(false); this._frSet && this._frSet(false); this._gmSet && this._gmSet(false); this._grSet && this._grSet(false); const hz2 = ar.querySelector('[data-heart-zoom]'); hz2.style.transform = 'none'; hz2.style.opacity = '1'; ar.querySelector('[data-ar-white]').style.opacity = '0'; } if (ar.querySelector('[data-ar-track]')) ar.querySelector('[data-ar-track]').style.transform = 'none'; tm.forEach(clearTimeout); raf.forEach(cancelAnimationFrame); tm = []; raf = []; ar.style.background = '#fff'; els.forEach((n, i) => { n.style.cssText = arSaved[i]; }); nums.forEach(n => { n.textContent = (0).toFixed(+n.dataset.dec); }); sh.style.transition = 'transform 1.2s cubic-bezier(.2,.8,.2,1)'; sh.style.transform = rise ? 'translate(-50%,0)' : 'translate(-50%,30vh)'; };
+    const collapse = () => { full = false; shifted = false; { const lk = layer === window ? document.documentElement : layer; if (lk._ovOrig !== undefined) { lk._hardLock = false; lk.style.overflowY = lk._ovOrig; } ar.style.overflow = 'hidden'; ar.style.zIndex = ''; delete ar.dataset.exp; } if (zoomed) { zoomed = false; this._flSet && this._flSet(false); this._fsSet && this._fsSet(false); this._frSet && this._frSet(false); this._gmSet && this._gmSet(false); this._grSet && this._grSet(false); const hz2 = ar.querySelector('[data-heart-zoom]'); hz2.style.transform = 'none'; hz2.style.opacity = '1'; ar.querySelector('[data-ar-white]').style.opacity = '0'; } if (ar.querySelector('[data-ar-track]')) ar.querySelector('[data-ar-track]').style.transform = 'none'; tm.forEach(clearTimeout); raf.forEach(cancelAnimationFrame); tm = []; raf = []; ar.style.background = '#fff'; els.forEach((n, i) => { n.style.cssText = arSaved[i]; }); nums.forEach(n => { n.textContent = (0).toFixed(+n.dataset.dec); }); sh.style.transition = 'transform 1.2s cubic-bezier(.2,.8,.2,1)'; sh.style.transform = rise ? 'translate(-50%,0)' : 'translate(-50%,30vh)'; };
     let q = false, lastSc = 0;
     const tick = () => { q = false;
       const b = layer === window ? { top: 0, bottom: innerHeight, height: innerHeight } : layer.getBoundingClientRect(), r = ar.getBoundingClientRect(), t = r.top - b.top;
@@ -741,13 +751,13 @@ class Component extends DCLogic {
       if (!on) { frTm = setTimeout(() => { frNum.textContent = '0.0'; }, 900); return; }
       frTm = setTimeout(() => { const t0 = performance.now(); const st = () => { const k = Math.min(1, (performance.now() - t0) / 1400), e2 = 1 - Math.pow(1 - k, 3); frNum.textContent = (2.4 * e2).toFixed(1); if (k < 1) frRaf = requestAnimationFrame(st); }; frRaf = requestAnimationFrame(st); }, 650); };
     this._frSet = frSet;
-    const gmEl = ar.querySelector('[data-gm]'); let gmOn = false, gmT = [], gmStage = 0, gmFlip = 'none';
+    const gmEl = ar.querySelector('[data-gm]'); let gmOn = false, gmT = [], gmStage = 0, gmFlip = 'none', gmRShown = false, gmLAt = 0;
     const gmSet = on => { gmOn = on; gmStage = on ? 1 : 0; if (!gmEl) return; if (on) fitM(gmEl); if (on) gmEl.scrollTop = 0; gmT.forEach(clearTimeout); gmT = [];
       const bg = gmEl.querySelector('[data-gm-bg]'), ti = gmEl.querySelector('[data-gm-title]'), cards = [...gmEl.querySelectorAll('[data-gm-card]')];
       const reset = () => { bg.style.transition = 'none'; bg.style.opacity = '1'; gmEl.style.backgroundColor = '#000'; ti.style.transition = 'none'; ti.style.transform = 'none'; ti.style.color = '#fff'; ti.style.opacity = '0';
         cards.forEach(c => { c.style.transition = 'none'; c.style.opacity = '0'; c.style.filter = 'blur(8px)'; c.style.transform = 'translateX(calc(' + (c.dataset.gmCard === 'l' ? '' : '-') + '50% ' + (c.dataset.gmCard === 'l' ? '+' : '-') + ' 0.55cqw)) scale(0)'; }); };
-      if (!on) { gmEl.style.transition = 'opacity .7s ease, visibility 0s linear .7s'; gmEl.style.opacity = '0'; gmEl.style.visibility = 'hidden'; gmEl.style.pointerEvents = 'none'; gmT.push(setTimeout(reset, 720)); return; }
-      reset();
+      if (!on) { clearTimeout(gmEl._relT); gmEl.style.removeProperty('overflow-y'); gmEl.style.transition = 'opacity .7s ease, visibility 0s linear .7s'; gmEl.style.opacity = '0'; gmEl.style.visibility = 'hidden'; gmEl.style.pointerEvents = 'none'; gmT.push(setTimeout(reset, 720)); return; }
+      reset(); if (window.matchMedia('(max-width: 760px)').matches) { clearTimeout(gmEl._relT); gmEl.style.setProperty('overflow-y', 'hidden', 'important'); }
       const L = gmEl.getBoundingClientRect(), W = L.width, H = L.height, s = Math.max(W / 1326, H / 745), ox = (W - 1326 * s) / 2, oy = (H - 745 * s) / 2;
       const rg = document.createRange(); rg.selectNodeContents(ti); const r = rg.getBoundingClientRect(), tr = ti.getBoundingClientRect();
       const mob = window.matchMedia('(max-width: 760px)').matches, k = mob ? Math.min((968 * s) / r.width, (W - 40) / r.width, 1.4) : (968 * s) / r.width, cx = r.left - L.left + r.width / 2, cy = tr.top - L.top + tr.height / 2;
@@ -759,8 +769,24 @@ class Component extends DCLogic {
     const gmMorph = on => { gmStage = on ? 2 : 1; if (!gmEl) return; const bg = gmEl.querySelector('[data-gm-bg]'), ti = gmEl.querySelector('[data-gm-title]'), cards = [...gmEl.querySelectorAll('[data-gm-card]')];
       bg.style.transition = on ? 'opacity .9s ease' : 'opacity .9s ease .2s'; bg.style.opacity = on ? '0' : '1'; gmEl.style.transition = 'opacity .9s ease, visibility 0s, background-color 1.1s ease'; gmEl.style.backgroundColor = on ? '#fff' : '#000';
       ti.style.transition = 'transform 1.2s cubic-bezier(.65,0,.35,1), color 1.1s ease'; ti.style.transform = on ? 'none' : gmFlip; ti.style.color = on ? '#212121' : '#fff';
-      cards.forEach(c => { const off = 'translateX(calc(' + (c.dataset.gmCard === 'l' ? '' : '-') + '50% ' + (c.dataset.gmCard === 'l' ? '+' : '-') + ' 0.55cqw)) scale(0)'; c.style.transition = on ? 'opacity .35s ease .6s, filter .6s ease .6s, transform 1.2s cubic-bezier(.65,0,.35,1) .6s' : 'opacity .4s ease .5s, filter .4s ease, transform .8s cubic-bezier(.65,0,.35,1)'; c.style.opacity = on ? '1' : '0'; c.style.filter = on ? 'none' : 'blur(8px)'; c.style.transform = on ? 'none' : off; });
+      const gmMob = window.matchMedia('(max-width: 760px)').matches; gmRShown = false; gmLAt = performance.now() + 600;
+      if (gmMob) { clearTimeout(gmEl._relT); gmEl._relT = setTimeout(() => gmEl.style.removeProperty('overflow-y'), on ? 1300 : 0); }
+      cards.forEach(c => { if (gmMob) { const show = on && c.dataset.gmCard === 'l'; c.style.transition = on ? 'opacity .5s ease .6s, transform .7s cubic-bezier(.23,1,.32,1) .6s' : 'opacity .3s ease, transform .3s ease'; c.style.filter = 'none'; c.style.opacity = show ? '1' : '0'; c.style.transform = show ? 'none' : 'translateY(24px)'; return; } const off = 'translateX(calc(' + (c.dataset.gmCard === 'l' ? '' : '-') + '50% ' + (c.dataset.gmCard === 'l' ? '+' : '-') + ' 0.55cqw)) scale(0)'; c.style.transition = on ? 'opacity .35s ease .6s, filter .6s ease .6s, transform 1.2s cubic-bezier(.65,0,.35,1) .6s' : 'opacity .4s ease .5s, filter .4s ease, transform .8s cubic-bezier(.65,0,.35,1)'; c.style.opacity = on ? '1' : '0'; c.style.filter = on ? 'none' : 'blur(8px)'; c.style.transform = on ? 'none' : off; });
     };
+    if (gmEl) {
+    const gmLim = () => { const l = gmEl.querySelector('[data-gm-card="l"]'), vv = window.visualViewport, vb = Math.min(gmEl.getBoundingClientRect().bottom, vv ? vv.offsetTop + vv.height : innerHeight); return Math.max(0, gmEl.scrollTop + (l.getBoundingClientRect().bottom + 24 - vb)); };
+    const gmHold = () => !gmRShown && gmOn && gmStage === 2 && window.matchMedia('(max-width: 760px)').matches;
+    gmEl.addEventListener('scroll', () => {
+      if (!gmHold()) return;
+      const r = gmEl.querySelector('[data-gm-card="r"]'), lim = gmLim();
+      if (gmEl.scrollTop <= lim + 1) return;
+      if (performance.now() - gmLAt > 900) { gmRShown = true; r.style.transition = 'opacity .5s ease, transform .7s cubic-bezier(.23,1,.32,1)'; r.style.opacity = '1'; r.style.transform = 'none'; }
+      else this._stopAt(gmEl, lim);
+    }, { passive: true });
+    let gy = null;
+    gmEl.addEventListener('touchstart', e => { gy = e.touches[0].clientY; }, { passive: true });
+    gmEl.addEventListener('touchmove', e => { if (gy == null || !gmHold()) return; const dy = gy - e.touches[0].clientY; if (dy > 0 && gmEl.scrollTop >= gmLim() - 1 && performance.now() - gmLAt <= 900) e.preventDefault(); }, { passive: false });
+    }
     this._gmSet = gmSet;
     const grEl = ar.querySelector('[data-gr]'), grNum = ar.querySelector('[data-grnum]'); let grOn = false, grRaf = 0, grT = [];
     const grD = grEl ? [...grEl.querySelectorAll('[data-grd] p')].flatMap(p => split(p, 'transition:color .2s ease;')) : [];
@@ -1053,8 +1079,8 @@ class Component extends DCLogic {
     const contribEl = document.getElementById('contrib');
     let cOn = null;
     const obEl = contribEl && contribEl.querySelector('[data-ob-layer]');
-    const obTxt = (el, v, base) => { if (!el._tw) { el._tw = []; el.querySelectorAll('h4, p').forEach(p => { const ws = []; const col = getComputedStyle(p).color; p.childNodes.forEach(nd => { if (nd.nodeType !== 3) return; const fr = document.createDocumentFragment(); nd.nodeValue.split(/(\s+)/).forEach(t => { if (!t) return; if (/^\s+$/.test(t)) { fr.appendChild(document.createTextNode(t)); return; } const s = document.createElement('span'); s.textContent = t; s.style.color = 'rgba(33,33,33,0.15)'; if (p.tagName === 'H4') s.style.opacity = '0'; ws.push(s); fr.appendChild(s); }); nd.replaceWith(fr); }); el._tw.push({ ws, col, h: p.tagName === 'H4' }); }); void el.offsetHeight; } let d = base; el._tw.forEach(g => { g.ws.forEach((s, i) => { const dl = d + i * (g.h ? 0.08 : 0.9 / g.ws.length); s.style.transition = v ? 'color .3s ease ' + dl + 's, opacity .3s ease ' + dl + 's' : 'color .2s ease, opacity .2s ease'; s.style.color = v ? g.col : 'rgba(33,33,33,0.15)'; s.style.opacity = g.h ? (v ? '1' : '0') : '1'; }); d += g.h ? 0.3 : 0.95; }); return d; };
-    const obShow = (n, v) => (n < 3 && window.matchMedia('(max-width: 760px)').matches) ? (v ? null : obEl.querySelectorAll('[data-ob="' + n + '"]').forEach(el => { el.style.transition = 'opacity .3s ease, transform .3s ease, filter .3s ease'; el.style.opacity = '0'; el.style.transform = n === 1 ? 'translateX(40vw)' : 'translateX(-40vw)'; el.style.filter = 'blur(8px)'; setTimeout(() => { el.style.transition = 'opacity .8s ease, transform 1s cubic-bezier(.2,.8,.2,1), filter .8s ease'; }, 320); if (this._obIo) { this._obIo.unobserve(el); this._obIo.observe(el); } })) : obEl.querySelectorAll('[data-ob="' + n + '"]').forEach(el => { if (n === 3 && /^ob-d1?$/.test(el.dataset.m || '') && !window.matchMedia('(max-width: 760px)').matches) { const L = el.dataset.m === 'ob-d1'; el.style.filter = 'none'; el.style.transition = v ? 'opacity .8s ease ' + (L ? '0s' : '.12s') + ', transform 1.1s cubic-bezier(.16,1,.3,1) ' + (L ? '0s' : '.12s') : 'opacity .35s ease, transform .35s ease'; el.style.opacity = v ? '1' : '0'; el.style.transform = v ? 'none' : (L ? 'translateX(-18vw)' : 'translateX(18vw)'); return; } el.style.transitionDelay = (v && el.dataset.m === 'ob-d') ? '.95s' : '0s'; el.style.opacity = v ? '1' : '0'; el.style.transform = v ? 'none' : (n < 3 ? 'translateX(12vw)' : 'translateY(24px)'); el.style.filter = v ? 'blur(0px)' : 'blur(8px)'; });
+    const obTxt = (el, v, base) => { if (!el._tw) { el._tw = []; el.querySelectorAll('h4, p').forEach(p => { const ws = []; const col = getComputedStyle(p).color; p.childNodes.forEach(nd => { if (nd.nodeType !== 3) return; const fr = document.createDocumentFragment(); nd.nodeValue.split(/(\s+)/).forEach(t => { if (!t) return; if (/^\s+$/.test(t)) { fr.appendChild(document.createTextNode(t)); return; } const s = document.createElement('span'); s.textContent = t; s.style.color = 'rgba(33,33,33,0.15)'; if (p.tagName === 'H4') s.style.opacity = '0'; ws.push(s); fr.appendChild(s); }); nd.replaceWith(fr); }); el._tw.push({ ws, col, h: p.tagName === 'H4' }); }); void el.offsetHeight; } let d = base; const fm = window.matchMedia('(max-width: 760px)').matches, hS = fm ? 0.025 : 0.08, pT = fm ? 0.3 : 0.9, hG = fm ? 0.1 : 0.3, pG = fm ? 0.32 : 0.95, tr = fm ? '.18s' : '.3s'; el._tw.forEach(g => { g.ws.forEach((s, i) => { const dl = d + i * (g.h ? hS : pT / g.ws.length); s.style.transition = v ? 'color ' + tr + ' ease ' + dl + 's, opacity ' + tr + ' ease ' + dl + 's' : 'color .2s ease, opacity .2s ease'; s.style.color = v ? g.col : 'rgba(33,33,33,0.15)'; s.style.opacity = g.h ? (v ? '1' : '0') : '1'; }); d += g.h ? hG : pG; }); return d; };
+    const obShow = (n, v) => (n < 3 && window.matchMedia('(max-width: 760px)').matches) ? (v ? null : obEl.querySelectorAll('[data-ob="' + n + '"]').forEach(el => { el.style.transition = 'opacity .3s ease, transform .3s ease'; el.style.opacity = '0'; el.style.transform = n === 1 ? 'translate3d(40vw,0,0)' : 'translate3d(-40vw,0,0)'; el.style.filter = 'none'; setTimeout(() => { el.style.transition = 'opacity .6s ease, transform .85s cubic-bezier(.23,1,.32,1)'; }, 320); if (this._obIo) { this._obIo.unobserve(el); this._obIo.observe(el); } })) : obEl.querySelectorAll('[data-ob="' + n + '"]').forEach(el => { if (n === 3 && /^ob-d1?$/.test(el.dataset.m || '') && !window.matchMedia('(max-width: 760px)').matches) { const L = el.dataset.m === 'ob-d1'; el.style.filter = 'none'; el.style.transition = v ? 'opacity .8s ease ' + (L ? '0s' : '.12s') + ', transform 1.1s cubic-bezier(.16,1,.3,1) ' + (L ? '0s' : '.12s') : 'opacity .35s ease, transform .35s ease'; el.style.opacity = v ? '1' : '0'; el.style.transform = v ? 'none' : (L ? 'translateX(-18vw)' : 'translateX(18vw)'); return; } el.style.transitionDelay = (v && el.dataset.m === 'ob-d') ? '.95s' : '0s'; el.style.opacity = v ? '1' : '0'; el.style.transform = v ? 'none' : (n < 3 ? 'translateX(12vw)' : 'translateY(24px)'); el.style.filter = v ? 'blur(0px)' : 'blur(8px)'; });
     const resEl = obEl && obEl.querySelector('[data-result]');
     let resOn = false, resRaf = 0, resT = [];
     const resSet = (on) => {
@@ -1095,7 +1121,7 @@ class Component extends DCLogic {
     }
     const subEl = obEl && obEl.querySelector('[data-sub]');
     let subOn = false, subT = [], subLock = 0, subRaf = 0;
-    const obRoll = (to, dur = 1000) => { cancelAnimationFrame(subRaf); const from = obEl.scrollTop, d = to - from, t0 = performance.now(), ez = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; const s = now => { const t = Math.min(1, (now - t0) / dur); obEl.scrollTop = from + d * ez(t); if (t < 1) subRaf = requestAnimationFrame(s); }; subRaf = requestAnimationFrame(s); };
+    const obRoll = (to, dur = 1000) => { cancelAnimationFrame(subRaf); if (!obEl._hardLock && window.matchMedia('(max-width: 760px)').matches) { obEl.style.setProperty('overflow-y', 'hidden', 'important'); clearTimeout(obEl._orT); obEl._orT = setTimeout(() => { if (!obEl._hardLock) obEl.style.setProperty('overflow-y', 'auto'); }, dur + 40); } const from = obEl.scrollTop, d = to - from, t0 = performance.now(), ez = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; const s = now => { const t = Math.min(1, (now - t0) / dur); obEl.scrollTop = from + d * ez(t); if (t < 1) subRaf = requestAnimationFrame(s); }; subRaf = requestAnimationFrame(s); };
     const pbSet = (n) => { if (!subEl) return; subEl.querySelectorAll('[data-pb]').forEach(el => { const on = +el.dataset.pb <= n; el.style.opacity = on ? '1' : '0'; el.style.transform = on ? 'none' : 'translateY(32px)'; const sh = el.tagName === 'IMG' ? ' drop-shadow(0 1.2cqw 1.8cqw rgba(33,33,33,0.14))' : ''; el.style.filter = (on ? 'blur(0px)' : 'blur(8px)') + sh; }); };
     const subIntro = () => {
       const tt = subEl.querySelector('[data-sub-title]'); tt.getAnimations().forEach(x => x.cancel());
@@ -1160,7 +1186,7 @@ class Component extends DCLogic {
       let sq = false;
       obEl.addEventListener('scroll', () => { if (sq) return; sq = true; requestAnimationFrame(() => { sq = false;
         if (performance.now() - subLock < 1100) return;
-        if (!subOn && window.matchMedia('(max-width: 760px)').matches) { const lim = stAlign(); if (obEl.scrollTop > lim + 1 && atStats()) { obEl.scrollTop = lim; } }
+        if (!subOn && window.matchMedia('(max-width: 760px)').matches) { const lim = stAlign(); if (obEl.scrollTop > lim + 1 && atStats()) { this._stopAt(obEl, lim); } }
         const b = obEl.getBoundingClientRect(), t = subEl.getBoundingClientRect().top - b.top;
         if (!subOn && !window.matchMedia('(max-width: 760px)').matches && t < b.height * 0.6 && t > -b.height * 0.5) { subLock = performance.now(); if (!stOn) { stSet(true); obRoll(stAlign(), 400); } else { obRoll(obEl.scrollTop + t, 500); subPlay(); } }
         else if (subOn && t > b.height * 0.6) { subReset(); }
@@ -1180,11 +1206,12 @@ class Component extends DCLogic {
       solB = true; for (let i = 0; i < 6; i++) solT.push(setTimeout(() => spSet('b', i, true), 6 * s + g + i * s));
       return 12 * s + g + (fast ? 300 : 600);
     };
-    let persFast = false, persPhase = '', persAn = [], persOv = '', persUnT = 0;
-    const persUnlock = (ms) => { clearTimeout(persUnT); persUnT = setTimeout(() => { obEl.style.overflowY = persOv; persBusy = false; persPhase = ''; }, ms); };
+    let persFast = false, persPhase = '', persAn = [], persOv = null, persUnT = 0, persWd = 0;
+    const persUnlock = (ms) => { clearTimeout(persUnT); clearTimeout(persWd); persUnT = setTimeout(() => { obEl._hardLock = false; obEl.style.overflowY = persOv == null ? '' : persOv; persBusy = false; persPhase = ''; }, ms); };
     const persStart = () => {
-      persBusy = true; persOn = true; persFast = false; persPhase = 'line';
-      persOv = obEl.style.overflowY; obEl.style.overflowY = 'hidden';
+      persBusy = true; persOn = true; persFast = false; persPhase = 'line'; obEl._hardLock = true;
+      if (persOv == null) persOv = obEl.style.overflowY === 'hidden' ? 'auto' : (obEl.style.overflowY || 'auto'); obEl.style.overflowY = 'hidden';
+      clearTimeout(persWd); persWd = setTimeout(() => { if (persBusy) { persDone = true; persPhase = ''; persUnlock(0); } }, 15000);
       const ln = subEl.querySelector('[data-pers-line]'), ct = subEl.querySelector('[data-sub-content]');
       ln.getAnimations().forEach(x => x.cancel());
       const ez = 'cubic-bezier(.25,0,.75,1)', D = 11000;
@@ -1205,7 +1232,7 @@ class Component extends DCLogic {
         persPhase = 'roll'; ct.style.opacity = '0'; const rd = persFast ? 450 : 900;
         rollTo(solEl, rd);
         setTimeout(() => { persDone = true; a2.cancel(); ['maskImage', 'webkitMaskImage'].forEach(p => { ct.style[p] = ''; }); persPhase = 'phones'; persUnlock(solPlay(persFast)); }, rd + 20);
-      });
+      }).catch(() => { a2.cancel(); persUnlock(0); });
     };
     const persSpeed = () => {
       if (persFast) return; persFast = true;
@@ -1217,7 +1244,7 @@ class Component extends DCLogic {
       const b = obEl.getBoundingClientRect(), pt = persEl.getBoundingClientRect().top - b.top, st = solEl.getBoundingClientRect().top - b.top;
       if (persBusy) return;
       if (persDone && st > b.height * 0.95) { persDone = false; persOn = false; const ln = subEl.querySelector('[data-pers-line]'), ct = subEl.querySelector('[data-sub-content]'); ln.getAnimations().forEach(x => x.cancel()); ln.style.transform = 'translateX(110vw)'; ct.style.opacity = ''; ct.style.maskImage = ''; ct.style.webkitMaskImage = ''; }
-      if (!persDone && subOn && st < b.height * 0.92 && st > -b.height * 0.5 && performance.now() - subLock > 1100) { rollTo(subEl, 260); setTimeout(() => { if (!persBusy && !persDone) persStart(); }, 280); persBusy = true; return; }
+      if (!persDone && subOn && st < b.height * 0.92 && st > -b.height * 0.5 && performance.now() - subLock > 1100) { rollTo(subEl, 260); persBusy = true; setTimeout(() => { persBusy = false; if (!persDone) persStart(); }, 280); return; }
       solBChk();
       if (!solOn && st < b.height * 0.5) solPlay();
       else if (solOn && st > b.height) { solOn = false; solT.forEach(clearTimeout); solT = []; for (let i = 0; i < 6; i++) { spSet('a', i, false); spSet('b', i, false); } }
@@ -1305,7 +1332,7 @@ class Component extends DCLogic {
       T(() => obShow(1, true), back + 400);
       T(() => obShow(2, true), back + 680);
       T(() => obShow(3, true), back + 980);
-      T(() => { this._obBusy = false; }, back + 1400);
+      T(() => { this._obBusy = false; }, back + (window.matchMedia('(max-width: 760px)').matches ? 950 : 1400));
       this._obBack = back;
     };
     const contribFx = () => {
@@ -1328,7 +1355,7 @@ class Component extends DCLogic {
           s.style.transform = 'translateX(0)'; set('[data-cs="' + s.dataset.cslide + '"]', true);
           this._csIdx++;
           if (this._csIdx >= slides.length) { this._csDone = true; this._csReadyAt = performance.now() + 350; this._csT = setTimeout(() => this._obPlay(), 900); }
-          else this._csT = setTimeout(this._csAdv, 700);
+          else this._csT = setTimeout(this._csAdv, window.matchMedia('(max-width: 760px)').matches ? 520 : 700);
         };
         this._csT = setTimeout(this._csAdv, revealMs('[data-cb]'));
       } else { this._obReset(); this._csDone = false; this._csAdv = null; this._csIdx = 0; slides.forEach(s => { s.style.transform = 'translateX(100%)'; }); set('[data-cs]', false); }
@@ -1349,6 +1376,7 @@ class Component extends DCLogic {
     const givenPinned = () => { const g = document.getElementById('given'); return g && Math.abs(g.getBoundingClientRect().top) < 4; };
     const pinned = () => { const t = cover.getBoundingClientRect().top; return Math.abs(t) < 4; };
     this._onWheel = e => {
+      if (window.scrollY < 10 && performance.now() < (this._heroReadyAt || 0)) { e.preventDefault(); this._wBlock = true; this._lastWheel = performance.now(); return; }
       const _pw = this._lastWheel || 0; this._lastWheel = performance.now(); const freshWheel = this._lastWheel - _pw > 220;
       if (this._rolling || this._splitting) { e.preventDefault(); this._wBlock = true; return; }
       if (this._wBlock) { if (!freshWheel) { e.preventDefault(); return; } this._wBlock = false; }
@@ -1357,10 +1385,10 @@ class Component extends DCLogic {
       if (e.deltaY < -2 && contribPinned() && this._obOn && obEl.scrollTop <= 0) { e.preventDefault(); this._obReset(); return; }
       if (e.deltaY > 0 && inGap()) { e.preventDefault(); snap(); return; }
       if (e.deltaY > 0 && givenGap()) { e.preventDefault(); toGiven(); return; }
-      if (e.deltaY > 2 && gvOn && !this._gvDone && Math.abs(givenEl.getBoundingClientRect().top) < 4) { e.preventDefault(); this._wBlock = true; return; }
+      if (e.deltaY > 2 && gvOn && !this._gvDone && Math.abs(givenEl.getBoundingClientRect().top) < 4) { e.preventDefault(); gvFinish(); return; }
       if (e.deltaY > 2 && contribGap()) { e.preventDefault(); toContrib(); return; }
       if (e.deltaY > 0 && contribPinned() && this._csAdv && !this._csDone) { e.preventDefault(); this._wBlock = true; return; }
-      if (e.deltaY > 0 && this._gvDone && !this._gvComplete && givenPinned()) { e.preventDefault(); this._wBlock = true; return; }
+      if (e.deltaY > 0 && this._gvDone && !this._gvComplete && givenPinned()) { e.preventDefault(); if (e.deltaY > 2 && freshWheel) { if (this._gvFinishing) this._gvQueue = true; else gvFinish(); } return; }
       if (e.deltaY > 2 && (launchGap() || (this._gvDone && givenPinned()))) { e.preventDefault(); toLaunch(); return; }
       if (pinned() && Math.abs(e.deltaY) > 2) {
         if (e.deltaY > 0 && this._split) { e.preventDefault(); toGiven(); }
@@ -1372,7 +1400,9 @@ class Component extends DCLogic {
     let tFin = false;
     this._onTouchStart = e => { ty = e.touches[0].clientY; tFin = false; };
     this._onTouchMove = e => {
+      if (window.scrollY < 10 && performance.now() < (this._heroReadyAt || 0)) { e.preventDefault(); tFin = true; return; }
       if (tFin) { e.preventDefault(); return; }
+      if (contribPinned() && this._obBusy && !this._rolling) { e.preventDefault(); ty = e.touches[0].clientY; return; }
       this._onTouchMove2(e);
       if (e.defaultPrevented) tFin = true;
     };
@@ -1380,15 +1410,16 @@ class Component extends DCLogic {
       if (this._rolling) { e.preventDefault(); return; }
       if (this._splitting) { e.preventDefault(); return; }
       const dy = ty - e.touches[0].clientY;
+      if (window.matchMedia('(max-width: 760px)').matches && this.state.view === 'home') { const sw = document.getElementById('selected-work'); if (sw) { const st = sw.getBoundingClientRect().top; if (dy > 8 && st > 1 && st < window.innerHeight * 1.05) { e.preventDefault(); this.rollTo(st + window.scrollY, 1000); return; } if (dy < -8 && Math.abs(st) < 4 && window.scrollY > 4) { const mn = document.querySelector('main'), swY = mn ? mn.getBoundingClientRect().bottom + window.scrollY : 0; if (Math.abs(window.scrollY - swY) < 6) { e.preventDefault(); this.rollTo(0, 1000); return; } } } }
       if (contribPinned() && this._obBusy) { e.preventDefault(); return; }
       if (dy > 8 && contribPinned() && this._csDone && !this._obOn) { e.preventDefault(); if (performance.now() > this._csReadyAt) this._obPlay(); return; }
       if (dy < -8 && contribPinned() && this._obOn && obEl.scrollTop <= 0) { e.preventDefault(); this._obReset(); return; }
       if (dy > 8 && inGap()) { e.preventDefault(); snap(); return; }
       if (dy > 8 && givenGap()) { e.preventDefault(); toGiven(); return; }
-      if (dy > 8 && gvOn && !this._gvDone && Math.abs(givenEl.getBoundingClientRect().top) < 4) { e.preventDefault(); return; }
+      if (dy > 8 && gvOn && !this._gvDone && Math.abs(givenEl.getBoundingClientRect().top) < 4) { e.preventDefault(); gvFinish(); return; }
       if (dy > 8 && contribGap()) { e.preventDefault(); toContrib(); return; }
       if (dy > 0 && contribPinned() && this._csAdv && !this._csDone) { e.preventDefault(); return; }
-      if (dy > 0 && this._gvDone && !this._gvComplete && givenPinned()) { e.preventDefault(); return; }
+      if (dy > 0 && this._gvDone && !this._gvComplete && givenPinned()) { e.preventDefault(); if (dy > 8) { if (this._gvFinishing) this._gvQueue = true; else gvFinish(); } return; }
       if (dy > 8 && (launchGap() || (this._gvDone && givenPinned()))) { e.preventDefault(); toLaunch(); return; }
       if (pinned() && Math.abs(dy) > 8) {
         if (dy > 0 && this._split) { e.preventDefault(); toGiven(); }
@@ -1420,6 +1451,7 @@ class Component extends DCLogic {
     // 1 name, 2 headline, 3 data line, 4 buttons, 5 pngs, 6 nav
     const at = [0.2, 0.8, 1.9, 2.5, 2.6, 3.1];
     this.timers = at.map((t, i) => setTimeout(() => this.setState({ step: i + 1 }), (t * 1000) / k));
+    this._heroReadyAt = performance.now() + 4000 / k;
   }
   words(parts, on, stagger, base, k, ink = '#212121') {
     let i = 0;
