@@ -1,0 +1,18 @@
+---
+import raw from '../design/PortfolioHero.html?raw';
+
+const head = raw.match(/<head>([\s\S]*?)<\/head>/i)?.[1] ?? '';
+const body = (raw.match(/<body>([\s\S]*?)<\/body>/i)?.[1] ?? '')
+  .replace(/<template id="__bundler_thumbnail"[\s\S]*?<\/template>/i, '');
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Luv or Pop — Product Design Case Study</title>
+    <meta name="description" content="Case study: designing Luv or Pop, a dating app — onboarding, flagship features, subscriptions and gamification." />
+    <Fragment set:html={head} />
+  </head>
+  <body>
+    <Fragment set:html={body} />
+  </body>
+</html>
