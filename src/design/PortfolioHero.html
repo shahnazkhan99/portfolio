@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="ext-resource-dependency" content="assets/luv-couple-s.webp" data-resource-id="lcS" />
 <meta name="color-scheme" content="only light">
+<meta name="darkreader-lock">
 <style id="__boot">:root{color-scheme:only light;}html,body{background:#fff;}html::after{content:"";position:fixed;inset:0;background:#fff;z-index:2147483647;pointer-events:none;opacity:1;transition:opacity .45s ease;}html.__ready::after{opacity:0;}</style>
 <script>(function(){var d=document.documentElement,done=false;function go(){if(done)return;done=true;requestAnimationFrame(function(){requestAnimationFrame(function(){d.classList.add('__ready');});});}window.addEventListener('load',function(){var f=document.fonts&&document.fonts.ready;(f?f:Promise.resolve()).then(function(){setTimeout(go,250);});});setTimeout(go,7000);})();</script>
 <script src="./support.js"></script>
@@ -16,7 +17,6 @@
 <link rel="preload" as="image" href="assets/luv-couple-s.webp" fetchpriority="high" media="(max-width: 760px)">
 <script>if(window.matchMedia("(max-width: 760px)").matches){var __lc=new Image();__lc.fetchPriority="high";__lc.decoding="async";__lc.src=(window.__resources&&window.__resources.lcS)||"assets/luv-couple-s.webp";window.__lc=__lc;}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<script src="./image-slot.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Instrument+Serif&display=swap" rel="stylesheet">
 <style>
 html,body{margin:0;background:#fbfaf8;}
@@ -82,7 +82,7 @@ a:focus-visible{outline:2px solid #002BFF;outline-offset:3px;border-radius:999px
 [data-lp="1"]{left:0%!important;top:1%!important;}[data-lp="5"]{left:34.33%!important;top:1%!important;}[data-lp="4"]{left:68.66%!important;top:1%!important;}[data-lp="10"]{left:0%!important;top:20%!important;}[data-lp="6"]{left:34.33%!important;top:20%!important;}[data-lp="11"]{left:68.66%!important;top:20%!important;}[data-lp="2"]{left:0%!important;top:calc(53.75% + (100vw - 40px) * 0.1044)!important;}[data-lp="0"]{left:34.33%!important;top:calc(53.75% + (100vw - 40px) * 0.1044)!important;}[data-lp="9"]{left:68.66%!important;top:calc(53.75% + (100vw - 40px) * 0.1044)!important;}[data-lp="3"]{left:0%!important;top:calc(72.75% + (100vw - 40px) * 0.1044)!important;}[data-lp="8"]{left:34.33%!important;top:calc(72.75% + (100vw - 40px) * 0.1044)!important;}[data-lp="7"]{left:68.66%!important;top:calc(72.75% + (100vw - 40px) * 0.1044)!important;}
 [data-m="lstage"] h2{top:50%!important;font-size:min(10.6cqw,5.4svh)!important;white-space:nowrap!important;width:auto!important;}
 #contrib h3{font-size:clamp(46px,14.5vw,72px)!important;}
-[data-m="cb-h2"]{font-size:38px!important;padding:84px 20px 18px!important;}
+[data-m="cb-h2"]{font-size:38px!important;padding:72px 20px 16px!important;}
 [data-m="ob-wrap"]{grid-template-columns:minmax(0,1fr)!important;padding:84px 20px 48px!important;row-gap:40px!important;}
 [data-m="ob-wrap"] h2{font-size:48px!important;}
 #contrib [data-obsrc]{font-size:clamp(46px,14.5vw,72px)!important;}
@@ -683,14 +683,15 @@ class Component extends DCLogic {
       const b = layer === window ? { top: 0, left: 0, width: innerWidth } : layer.getBoundingClientRect();
       const R = sh.offsetWidth / 2, cy = ar.getBoundingClientRect().top + sh.offsetTop + R, cx = b.left + b.width / 2;
       const need = Math.max(Math.hypot(b.width / 2, cy - b.top), Math.hypot(b.width / 2, cy - (b.top + (b.height || innerHeight))));
-      sh.style.transition = 'transform 1.1s cubic-bezier(.65,0,.35,1)';
+      const mq = window.matchMedia('(max-width: 760px)').matches;
+      sh.style.transition = 'transform ' + (mq ? '.7s' : '1.1s') + ' cubic-bezier(.65,0,.35,1)';
       sh.style.transform = 'translate(-50%,0) scale(' + (need / R * 1.04).toFixed(3) + ')';
       tm.push(setTimeout(() => {
         ar.style.background = '#002BFF';
         if (layer === window) window.scrollTo(0, scrollY + ar.getBoundingClientRect().top); else layer.scrollTop += ar.getBoundingClientRect().top - layer.getBoundingClientRect().top;
         ar.style.overflow = 'hidden'; ar.style.zIndex = ''; delete ar.dataset.exp; lockEl.style.overflowY = ov;
         els.forEach(n => { n.style.opacity = '1'; n.style.transform = 'none'; n.style.filter = 'none'; }); nums.forEach((n, i) => count(n, 150 + i * 150));
-      }, 1150));
+      }, mq ? 720 : 1150));
     };
     const collapse = () => { full = false; shifted = false; if (zoomed) { zoomed = false; this._flSet && this._flSet(false); this._fsSet && this._fsSet(false); this._frSet && this._frSet(false); this._gmSet && this._gmSet(false); this._grSet && this._grSet(false); const hz2 = ar.querySelector('[data-heart-zoom]'); hz2.style.transform = 'none'; hz2.style.opacity = '1'; ar.querySelector('[data-ar-white]').style.opacity = '0'; } if (ar.querySelector('[data-ar-track]')) ar.querySelector('[data-ar-track]').style.transform = 'none'; tm.forEach(clearTimeout); raf.forEach(cancelAnimationFrame); tm = []; raf = []; ar.style.background = '#fff'; els.forEach((n, i) => { n.style.cssText = arSaved[i]; }); nums.forEach(n => { n.textContent = (0).toFixed(+n.dataset.dec); }); sh.style.transition = 'transform 1.2s cubic-bezier(.2,.8,.2,1)'; sh.style.transform = rise ? 'translate(-50%,0)' : 'translate(-50%,30vh)'; };
     let q = false, lastSc = 0;
@@ -839,7 +840,8 @@ class Component extends DCLogic {
     const lastTextDef = p => { const pr = p.getBoundingClientRect(), vb = Math.min(pr.bottom, visBot()); let mx = -1e9; const tw = document.createTreeWalker(p, NodeFilter.SHOW_TEXT), rg = document.createRange(); let n; while ((n = tw.nextNode())) { if (!n.nodeValue.trim()) continue; const pe = n.parentElement; if (!pe || pe.closest('[aria-hidden="true"]')) continue; const cs = getComputedStyle(pe); if (cs.visibility === 'hidden' || cs.display === 'none') continue; rg.selectNodeContents(n); const rs = rg.getClientRects(); if (!rs.length) continue; const b = rs[rs.length - 1].bottom; if (b > mx) mx = b; } p.querySelectorAll('img,[data-m="gr-scrbox"],[data-m="ar-card"]').forEach(m => { const q = m.getBoundingClientRect(); if (!q.height || !q.width || q.height > p.clientHeight * 0.8) return; const cs = getComputedStyle(m); if (cs.position === 'absolute' && m.parentElement === p) return; if (cs.visibility === 'hidden' || cs.display === 'none' || m.closest('[aria-hidden="true"]')) return; if (q.bottom > mx) mx = q.bottom; }); return mx === -1e9 ? -1 : mx + 24 - vb; };
     const ensureEnd = p => { const d = lastTextDef(p); if (d > 2 && (p._pad || 0) < 2 && p.scrollTop + p.clientHeight >= p.scrollHeight - 2) { p._pad = (p._pad || 0) + 1; p.style.paddingBottom = ((parseFloat(p.style.paddingBottom) || 0) + Math.min(d, p.clientHeight * 0.5)) + 'px'; } return d; };
     const atBotOf = p => p.scrollTop + p.clientHeight >= p.scrollHeight - 2 && ((p._pad || 0) >= 2 || lastTextDef(p) <= 2);
-    const LOCK = 900; let armed = true, wLast = 0, wMin = Infinity, pend = 0, pendT = 0;
+    const LOCK = 1200; let armed = true, wLast = 0, wMin = Infinity, pend = 0, pendT = 0;
+    const animBusy = () => { try { return ar.getAnimations({ subtree: true }).some(a => a.playState === 'running' && a.effect && a.effect.getComputedTiming().endTime !== Infinity); } catch (x) { return false; } };
     const disarm = () => { armed = false; wMin = Infinity; };
     const sense = (dy, e) => { if (e.type !== 'wheel') return; const n = performance.now(), a = Math.abs(dy), gap = n - wLast; wLast = n; if (gap > 200) { armed = true; wMin = a; return; } if (!armed) { if (a > Math.max(30, wMin * 3)) { armed = true; wMin = a; } else wMin = Math.min(wMin, a); } };
     const gate = (dy, e) => { if (!isM()) return false; const p = topPanel(); if (!p) return false; if (dy > 0) ensureEnd(p); if (p.scrollHeight <= p.clientHeight + 4) return false; const atTop = p.scrollTop <= 2, atBot = atBotOf(p); const can = (dy > 0 && !atBot) || (dy < 0 && !atTop); if (e.type === 'wheel') { if (can) { p.scrollTop += dy; disarm(); e.preventDefault(); e.stopImmediatePropagation(); return true; } return false; } if (gateStart && gateStart.p === p && ((dy > 0 && !gateStart.bot) || (dy < 0 && !gateStart.top))) return true; return false; };
@@ -858,17 +860,16 @@ class Component extends DCLogic {
         const lc = [...ar.querySelectorAll('[data-m="ar-card"]')].pop(), vbm = Math.min(lb.bottom, visBot()), need = lc ? lc.getBoundingClientRect().bottom + 48 - vbm : r.bottom - vbm;
         const n1 = performance.now(), atMax = W ? scrollY >= document.documentElement.scrollHeight - innerHeight - 2 : layer.scrollTop >= layer.scrollHeight - layer.clientHeight - 2;
         if (dy > 2 && need > 8 && !atMax) { arStepAt = n1; if (e.type === 'wheel') disarm(); e.stopImmediatePropagation(); return true; }
-        if (dy > 2) { e.preventDefault(); e.stopImmediatePropagation(); if (!armed || n1 - sLock < LOCK) return true; disarm(); sLock = n1; setZoom(true); return true; }
+        if (dy > 2) { e.preventDefault(); e.stopImmediatePropagation(); if (!armed || n1 - sLock < LOCK || animBusy()) { disarm(); return true; } disarm(); sLock = n1; setZoom(true); return true; }
         if (dy < -2 && lb.top - r.top > 8) { arStepAt = n1; e.stopImmediatePropagation(); return true; }
       }
       if (!full || !atAr()) return false;
       const now = performance.now(), dir = dy > 2 ? 1 : dy < -2 ? -1 : 0, f = dir > 0 ? nextDown() : dir < 0 ? nextUp() : null;
       if (!f) { if (dir > 0 || now - sLock < LOCK) { e.preventDefault(); e.stopImmediatePropagation(); return true; } return false; }
       e.preventDefault(); e.stopImmediatePropagation();
+      if (now - sLock < LOCK || animBusy()) { disarm(); return true; }
       if (!armed) return true;
-      disarm();
-      if (now - sLock < LOCK) { pend = dir; clearTimeout(pendT); pendT = setTimeout(() => { const d = pend; pend = 0; if (!d || !full || !atAr()) return; const g = d > 0 ? nextDown() : nextUp(); if (g) { sLock = performance.now(); g(); } }, LOCK - (now - sLock) + 20); return true; }
-      sLock = now; f(); return true;
+      disarm(); sLock = now; f(); return true;
     };
     layer.addEventListener('wheel', e => go(e.deltaY, e), { passive: false, capture: true });
     let ty = null;
@@ -1349,17 +1350,17 @@ class Component extends DCLogic {
     const pinned = () => { const t = cover.getBoundingClientRect().top; return Math.abs(t) < 4; };
     this._onWheel = e => {
       const _pw = this._lastWheel || 0; this._lastWheel = performance.now(); const freshWheel = this._lastWheel - _pw > 220;
-      if (this._rolling || this._splitting) { e.preventDefault(); return; }
+      if (this._rolling || this._splitting) { e.preventDefault(); this._wBlock = true; return; }
       if (this._wBlock) { if (!freshWheel) { e.preventDefault(); return; } this._wBlock = false; }
-      if (contribPinned() && this._obBusy) { e.preventDefault(); if (e.deltaY > 2 && freshWheel) this._obFinish(); return; }
+      if (contribPinned() && this._obBusy) { e.preventDefault(); this._wBlock = true; return; }
       if (e.deltaY > 2 && contribPinned() && this._csDone && !this._obOn) { e.preventDefault(); if (performance.now() > this._csReadyAt) this._obPlay(); return; }
       if (e.deltaY < -2 && contribPinned() && this._obOn && obEl.scrollTop <= 0) { e.preventDefault(); this._obReset(); return; }
       if (e.deltaY > 0 && inGap()) { e.preventDefault(); snap(); return; }
       if (e.deltaY > 0 && givenGap()) { e.preventDefault(); toGiven(); return; }
-      if (e.deltaY > 2 && gvOn && !this._gvDone && Math.abs(givenEl.getBoundingClientRect().top) < 4) { e.preventDefault(); gvFinish(); return; }
+      if (e.deltaY > 2 && gvOn && !this._gvDone && Math.abs(givenEl.getBoundingClientRect().top) < 4) { e.preventDefault(); this._wBlock = true; return; }
       if (e.deltaY > 2 && contribGap()) { e.preventDefault(); toContrib(); return; }
-      if (e.deltaY > 0 && contribPinned() && this._csAdv && !this._csDone) { e.preventDefault(); if (e.deltaY > 2 && this._csIdx > 0 && performance.now() - this._csLastAdv > 380) this._csAdv(); return; }
-      if (e.deltaY > 0 && this._gvDone && !this._gvComplete && givenPinned()) { e.preventDefault(); if (e.deltaY > 2 && freshWheel) { if (this._gvFinishing) this._gvQueue = true; else gvFinish(); } return; }
+      if (e.deltaY > 0 && contribPinned() && this._csAdv && !this._csDone) { e.preventDefault(); this._wBlock = true; return; }
+      if (e.deltaY > 0 && this._gvDone && !this._gvComplete && givenPinned()) { e.preventDefault(); this._wBlock = true; return; }
       if (e.deltaY > 2 && (launchGap() || (this._gvDone && givenPinned()))) { e.preventDefault(); toLaunch(); return; }
       if (pinned() && Math.abs(e.deltaY) > 2) {
         if (e.deltaY > 0 && this._split) { e.preventDefault(); toGiven(); }
@@ -1368,8 +1369,14 @@ class Component extends DCLogic {
       }
     };
     let ty = 0;
-    this._onTouchStart = e => { ty = e.touches[0].clientY; };
+    let tFin = false;
+    this._onTouchStart = e => { ty = e.touches[0].clientY; tFin = false; };
     this._onTouchMove = e => {
+      if (tFin) { e.preventDefault(); return; }
+      this._onTouchMove2(e);
+      if (e.defaultPrevented) tFin = true;
+    };
+    this._onTouchMove2 = e => {
       if (this._rolling) { e.preventDefault(); return; }
       if (this._splitting) { e.preventDefault(); return; }
       const dy = ty - e.touches[0].clientY;
@@ -1378,10 +1385,10 @@ class Component extends DCLogic {
       if (dy < -8 && contribPinned() && this._obOn && obEl.scrollTop <= 0) { e.preventDefault(); this._obReset(); return; }
       if (dy > 8 && inGap()) { e.preventDefault(); snap(); return; }
       if (dy > 8 && givenGap()) { e.preventDefault(); toGiven(); return; }
-      if (dy > 8 && gvOn && !this._gvDone && Math.abs(givenEl.getBoundingClientRect().top) < 4) { e.preventDefault(); gvFinish(); return; }
+      if (dy > 8 && gvOn && !this._gvDone && Math.abs(givenEl.getBoundingClientRect().top) < 4) { e.preventDefault(); return; }
       if (dy > 8 && contribGap()) { e.preventDefault(); toContrib(); return; }
-      if (dy > 0 && contribPinned() && this._csAdv && !this._csDone) { e.preventDefault(); if (dy > 8 && this._csIdx > 0 && performance.now() - this._csLastAdv > 380) this._csAdv(); return; }
-      if (dy > 0 && this._gvDone && !this._gvComplete && givenPinned()) { e.preventDefault(); if (dy > 8) { if (this._gvFinishing) this._gvQueue = true; else gvFinish(); } return; }
+      if (dy > 0 && contribPinned() && this._csAdv && !this._csDone) { e.preventDefault(); return; }
+      if (dy > 0 && this._gvDone && !this._gvComplete && givenPinned()) { e.preventDefault(); return; }
       if (dy > 8 && (launchGap() || (this._gvDone && givenPinned()))) { e.preventDefault(); toLaunch(); return; }
       if (pinned() && Math.abs(dy) > 8) {
         if (dy > 0 && this._split) { e.preventDefault(); toGiven(); }
