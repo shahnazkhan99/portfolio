@@ -1,0 +1,2447 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Demo 2 · Fixing a memory from the sentence</title>
+<script src="../support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+html[data-dreset] *,html[data-dreset] *::before,html[data-dreset] *::after{transition:none!important;}
+body{margin:0}
+a{color:#B85C3E}a:hover{color:#8F4530}
+button{font-family:inherit;cursor:pointer}
+@keyframes blink{0%,45%{opacity:1}55%,100%{opacity:0}}
+.caret{display:inline-block;width:2px;height:20px;margin:0 1px -4px 1px;border-radius:1px;animation:blink 1.1s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(.7);opacity:.45}50%{transform:scale(1);opacity:1}}
+.breathe{animation:breathe 1.9s ease-in-out infinite}
+@keyframes softIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.soft{animation:softIn .8s cubic-bezier(.22,1,.36,1) backwards}
+@keyframes glow{0%{background-position:120% 0}100%{background-position:-20% 0}}
+.glow{background-image:linear-gradient(90deg,#3D3D3A 0%,#3D3D3A 38%,#C9805F 50%,#3D3D3A 62%,#3D3D3A 100%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:glow 2.6s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes pop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+.pop{animation:pop .5s cubic-bezier(.34,1.56,.64,1) backwards}
+@keyframes fixIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.fixin{animation:fixIn .7s cubic-bezier(.22,1,.36,1) .5s backwards}
+@keyframes slideF{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+@keyframes slideB{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:none}}
+.slide-f{animation:slideF .5s cubic-bezier(.22,1,.36,1) backwards}
+.slide-b{animation:slideB .5s cubic-bezier(.22,1,.36,1) backwards}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.fade{animation:fadeIn .45s ease backwards}
+@keyframes dot{0%,80%,100%{transform:translateY(0);opacity:.35}40%{transform:translateY(-3px);opacity:1}}
+.dot{animation:dot 1.2s ease-in-out infinite}
+.noscroll{scrollbar-width:none}
+.noscroll::-webkit-scrollbar{display:none}
+[data-paused="1"] *{animation-play-state:paused!important}
+.scrubbar{opacity:0;transform:translateY(-6px);transition:opacity .35s ease,transform .5s cubic-bezier(.22,1,.36,1)}
+.scrubbar[data-on="1"]{opacity:1;transform:none}@media (hover:hover){[data-root]:hover .scrubbar{opacity:1;transform:none}}
+[data-scrub-thumb]{transition:transform .2s ease}
+[data-scrub-track]:hover [data-scrub-thumb]{transform:scale(1.3)}
+[data-scrubbing="1"] *{transition-duration:0s!important;transition-delay:0s!important}
+</style>
+</helmet>
+<div data-root="1" data-paused="{{pausedAttr}}" data-scrubbing="{{scrubAttr}}" ref="{{setRoot}}" onPointerDown="{{onDown}}" onPointerMove="{{onMove}}" onPointerUp="{{onUp}}" onPointerCancel="{{onCancel}}" onContextMenu="{{noMenu}}" style="position: relative; width: 390px; height: 844px; overflow: hidden; background: #FAF9F5; font-family: 'Anthropic Sans', system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #141413; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none">
+
+  <!-- Header -->
+  <div style="position: absolute; top: 0; left: 0; right: 0; height: 104px; box-sizing: border-box; padding: 54px 8px 6px 8px; display: flex; align-items: center; justify-content: space-between; background: #FAF9F5; z-index: 2">
+    <div style="width: 88px; display: flex; justify-content: flex-start">
+      <button aria-label="Open menu" style="width: 44px; height: 44px; border: none; background: transparent; border-radius: 22px; display: flex; align-items: center; justify-content: center; color: #3D3D3A">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"></path></svg>
+      </button>
+    </div>
+    <!-- title: "New chat" gives way to a short, discreet name once the reply starts -->
+    <div style="position: relative; width: 220px; height: 22px; text-align: center; font-size: 16px; line-height: 22px; font-weight: 500">
+      <span aria-hidden="{{t0Hidden}}" style="position: absolute; left: 0; right: 0; top: 0; opacity: {{t0Op}}; transform: translateY({{t0Y}}px); transition: opacity 500ms ease, transform 700ms cubic-bezier(.22,1,.36,1)">New chat</span>
+      <span aria-hidden="{{tNHidden}}" style="position: absolute; left: 0; right: 0; top: 0; opacity: {{tNOp}}; transform: translateY({{tNY}}px); transition: opacity 700ms ease 150ms, transform 900ms cubic-bezier(.22,1,.36,1) 150ms">Missing someone</span>
+    </div>
+    <div style="width: 88px; display: flex; justify-content: flex-end; align-items: center">
+      <!-- sticky-note tool: pick it up like a dropper, then tap any word to start a side chat there -->
+      <button data-sticky-tool="1" onClick="{{toolClick}}" disabled="{{toolDisabled}}" aria-label="Sticky note: tap a word to start a side chat" aria-pressed="{{toolPressed}}" style="width: 40px; height: 40px; border: none; border-radius: 20px; background: {{toolBg}}; color: {{toolColor}}; display: flex; align-items: center; justify-content: center; opacity: {{toolOp}}; cursor: {{toolCursor}}; transform: scale({{toolSc}}); transition: background-color 350ms ease, color 350ms ease, opacity 500ms ease, transform 450ms cubic-bezier(.34,1.56,.64,1)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="{{toolFill}}" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true" style="transition: fill 350ms ease"><path d="M5 4h14v10l-6 6H5z"></path><path d="M13 20v-6h6"></path></svg>
+      </button>
+      <button aria-label="Start a new chat" style="width: 44px; height: 44px; border: none; background: transparent; border-radius: 22px; display: flex; align-items: center; justify-content: center; color: #3D3D3A">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- while the sticky-note tool is held -->
+  <div aria-hidden="{{toolHintHidden}}" style="position: absolute; top: 106px; left: 0; right: 0; display: flex; justify-content: center; z-index: 6; pointer-events: none; opacity: {{toolHintOp}}; transform: translateY({{toolHintY}}px); transition: opacity 450ms ease, transform 600ms cubic-bezier(.22,1,.36,1)">
+    <div style="display: flex; align-items: center; gap: 7px; height: 32px; padding: 0 13px; border-radius: 16px; background: #FFFFFF; border: 0.5px solid rgba(31,30,29,0.14); box-shadow: 0 4px 14px rgba(20,20,19,0.08); font-size: 12.5px; font-weight: 500; color: #3D3D3A">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(217,119,87,0.14)" stroke="#D97757" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14v10l-6 6H5z"></path><path d="M13 20v-6h6"></path></svg>
+      Tap any word to start a side chat
+    </div>
+  </div>
+
+  <!-- Chat area (softly blurs back when the side chat expands over it) -->
+  <div style="position: absolute; top: 104px; left: 0; right: 0; bottom: {{chatBottom}}px; overflow: hidden; z-index: 1; filter: blur({{chatBl}}px); opacity: {{chatOp}}; transition: bottom 900ms cubic-bezier(.22,1,.36,1), filter 700ms ease, opacity 700ms ease">
+    <div aria-hidden="{{greetHidden}}" style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 0 40px; text-align: center; opacity: {{greetOp}}; transform: translateY({{greetTy}}px) scale({{greetSc}}); transition: opacity 700ms ease, transform 900ms cubic-bezier(.22,1,.36,1); pointer-events: none">
+      <h1 style="margin: 0; font-family: 'Anthropic Serif', Georgia, 'Times New Roman', Times, serif; font-size: 28px; line-height: 1.3; font-weight: 400">What’s on your mind?</h1>
+      <p style="margin: 0; font-size: 14px; line-height: 20px; color: #5E5D59">Sensitive things are never saved without asking you first.</p>
+    </div>
+    <sc-if value="{{sent}}" hint-placeholder-val="{{false}}">
+      <div data-scroller="1" class="noscroll" onScroll="{{onScroll}}" style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; overflow-y: auto; touch-action: pan-y">
+        <div style="min-height: 100%; box-sizing: border-box; padding: 10px 20px 20px 20px; display: flex; flex-direction: column; gap: 18px">
+
+          <!-- The question floats up from the input bar and settles at the top -->
+          <div data-bubble="1" style="align-self: flex-end; max-width: 280px; background: #F0EEE6; color: #141413; padding: 10px 14px; border-radius: 20px 20px 6px 20px; font-size: 16px; line-height: 22px; transform-origin: right bottom; opacity: {{bubOp}}; transform: translateY({{bubY}}px) scale({{bubSc}}); transition: transform 1150ms cubic-bezier(.2,1.08,.36,1), opacity 650ms ease">{{sentText}}</div>
+
+          <!-- Thinking: three slots roll the sentences, a warm glow passes over the current one -->
+          <sc-if value="{{thinking}}" hint-placeholder-val="{{false}}">
+            <div style="display: flex; flex-direction: column; gap: 14px">
+              <div class="soft" style="position: relative; height: 22px">
+                <div aria-hidden="{{liveHidden}}" style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: flex; align-items: center; gap: 10px; opacity: {{liveOp}}; transform: translateY({{liveY}}px); transition: opacity 600ms ease, transform 800ms cubic-bezier(.22,1,.36,1); pointer-events: none">
+                  <span class="breathe" style="display: block; flex: none; width: 9px; height: 9px; margin: 0 2px 0 3px; border-radius: 50%; background: #D97757"></span>
+                  <div style="position: relative; flex: 1; min-width: 0; height: 22px">
+                    <span class="glow" aria-hidden="{{s0Hidden}}" style="position: absolute; top: 1px; left: 0; right: 0; font-size: 14px; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: {{s0Op}}; transform: translateY({{s0Y}}px); transition: {{s0Tr}}">{{s0Text}}</span>
+                    <span class="glow" aria-hidden="{{s1Hidden}}" style="position: absolute; top: 1px; left: 0; right: 0; font-size: 14px; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: {{s1Op}}; transform: translateY({{s1Y}}px); transition: {{s1Tr}}">{{s1Text}}</span>
+                    <span class="glow" aria-hidden="{{s2Hidden}}" style="position: absolute; top: 1px; left: 0; right: 0; font-size: 14px; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: {{s2Op}}; transform: translateY({{s2Y}}px); transition: {{s2Tr}}">{{s2Text}}</span>
+                  </div>
+                </div>
+                <button onClick="{{toggleThink}}" aria-expanded="{{thinkExpanded}}" style="position: absolute; left: 0; top: -11px; height: 44px; display: flex; align-items: center; gap: 4px; padding: 0; border: none; background: none; font-size: 14px; line-height: 20px; font-weight: 500; color: #5E5D59; opacity: {{doneOp}}; transform: translateX({{doneX}}px); transition: opacity 800ms ease 300ms, transform 900ms cubic-bezier(.22,1,.36,1) 300ms; pointer-events: {{donePE}}">Thought for 6s<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform: rotate({{chevRot}}deg); transition: transform 450ms cubic-bezier(.22,1,.36,1)"><path d="M6 9l6 6 6-6"></path></svg></button>
+              </div>
+              <sc-if value="{{thinkOpen}}" hint-placeholder-val="{{false}}">
+                <div style="display: flex; flex-direction: column; gap: 10px">
+                  <sc-for list="{{steps}}" as="st" hint-placeholder-count="2">
+                    <div class="soft" style="display: flex; gap: 10px; align-items: flex-start; animation-delay: {{st.delay}}ms">
+                      <div style="width: 18px; height: 20px; flex: none; display: flex; align-items: center; justify-content: center">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97757" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+                      </div>
+                      <span style="font-size: 14px; line-height: 20px; color: #3D3D3A">{{st.label}}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <!-- Reply: laid out in full from the start; words surface in soft grey and deepen to ink -->
+          <sc-if value="{{hasReply}}" hint-placeholder-val="{{false}}">
+            <div style="display: flex; flex-direction: column; gap: 18px">
+              <div data-reply="1" style="position: relative; display: flex; flex-direction: column; gap: 12px; font-family: 'Anthropic Serif', Georgia, 'Times New Roman', Times, serif; font-size: 15.5px; line-height: 23px; color: #141413; cursor: {{replyCursor}}">
+                <sc-for list="{{paras}}" as="p" hint-placeholder-count="2">
+                  <p style="margin: 0"><sc-for list="{{p.words}}" as="w" hint-placeholder-count="12"><span data-w="{{w.i}}" data-sel="{{w.sel}}" style="position: relative; top: {{w.dy}}px; opacity: {{w.op}}; color: {{w.col}}; background-color: {{w.bg}}; background-image: linear-gradient(rgba(94,93,89,0.85), rgba(94,93,89,0.85)); background-repeat: no-repeat; background-position: 0 58%; background-size: {{w.stW}} 1.5px; border-radius: {{w.rad}}; transition: opacity 550ms ease-out, top 800ms cubic-bezier(.22,1,.36,1), color {{w.colDur}}ms cubic-bezier(.4,0,.2,1), background-color 320ms ease, background-size 340ms cubic-bezier(.4,0,.2,1) {{w.stDelay}}ms">{{w.t}}<sc-if value="{{w.isStart}}" hint-placeholder-val="{{false}}"><span class="fade" aria-hidden="true" style="position: absolute; left: -1px; top: -2px; bottom: -2px; width: 2px; border-radius: 1px; background: #D97757"></span><span class="fade" aria-hidden="true" style="position: absolute; left: -6px; top: -13px; width: 12px; height: 12px; border-radius: 50%; background: #D97757"></span><span data-handle="start" aria-hidden="true" style="position: absolute; left: -22px; top: -30px; width: 44px; height: 44px; touch-action: none; cursor: grab; z-index: 2; pointer-events: {{w.hitPE}}"></span></sc-if><sc-if value="{{w.isEnd}}" hint-placeholder-val="{{false}}"><span class="fade" aria-hidden="true" style="position: absolute; right: -1px; top: -2px; bottom: -2px; width: 2px; border-radius: 1px; background: #D97757"></span><span class="fade" aria-hidden="true" style="position: absolute; right: -6px; bottom: -13px; width: 12px; height: 12px; border-radius: 50%; background: #D97757"></span><span data-handle="end" aria-hidden="true" style="position: absolute; right: -22px; bottom: -30px; width: 44px; height: 44px; touch-action: none; cursor: grab; z-index: 2; pointer-events: {{w.hitPE}}"></span></sc-if><sc-if value="{{w.hasNote}}" hint-placeholder-val="{{false}}"><button data-note="1" onClick="{{w.noteClick}}" aria-label="Open the side chat about Seattle" style="position: absolute; right: -25px; top: -17px; width: 28px; height: 28px; padding: 0; border: none; background: transparent; display: flex; align-items: center; justify-content: center"><span class="pop" style="display: flex; opacity: 0.75"><svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(217,119,87,0.12)" stroke="rgba(217,119,87,0.7)" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14v10l-6 6H5z"></path><path d="M13 20v-6h6"></path></svg></span></button></sc-if></span><sc-if value="{{w.hasFix}}" hint-placeholder-val="{{false}}"><span class="fixin" style="display: inline-block; margin-left: 0.3em; color: {{w.fixColor}}; font-weight: 500; background-image: linear-gradient(rgba(94,93,89,0.85), rgba(94,93,89,0.85)); background-repeat: no-repeat; background-position: 0 58%; background-size: {{w.fixStW}} 1.5px; transition: background-size 340ms cubic-bezier(.4,0,.2,1) {{w.stDelay}}ms, color 900ms ease">{{w.fixText}}</span></sc-if><span style="background-color: {{w.spBg}}; background-image: linear-gradient(rgba(94,93,89,0.85), rgba(94,93,89,0.85)); background-repeat: no-repeat; background-position: 0 58%; background-size: {{w.spStW}} 1.5px; transition: background-color 320ms ease, background-size 160ms linear {{w.spStDelay}}ms">{{w.sp}}</span></sc-for></p>
+                </sc-for>
+              </div>
+
+              <!-- reply footer: one quiet save line, then the actions -->
+              <div style="display: flex; flex-direction: column; gap: 0; margin-top: -6px; opacity: {{footOp}}; transform: translateY({{footY}}px); transition: opacity 700ms ease, transform 900ms cubic-bezier(.22,1,.36,1); pointer-events: {{footPE}}">
+                <!-- one quiet save line, read as the last line of the reply -->
+                <div style="height: {{saveLineH}}px; margin-bottom: {{saveLineMb}}px; opacity: {{saveLineOp}}; overflow: hidden; transition: height 550ms cubic-bezier(.22,1,.36,1), margin-bottom 550ms cubic-bezier(.22,1,.36,1), opacity 380ms ease">
+                  <button data-save-line="1" onClick="{{saveLineClick}}" style="height: 22px; display: flex; align-items: center; gap: 6px; padding: 0; border: none; background: transparent; font-family: inherit; font-size: 12.5px; line-height: 17px; font-weight: 500; color: #C15F3C; text-align: left; cursor: pointer">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"></path><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3"></path><path d="M9 7.5h6M9 11h4"></path></svg>
+                    <span style="white-space: nowrap">Save to memory · {{saveText}}</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-left: -1px"><path d="M9 6l6 6-6 6"></path></svg>
+                  </button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 2px; margin-left: -8px; color: #73726C">
+                  <button aria-label="Copy reply" style="width: 36px; height: 36px; border: none; border-radius: 18px; background: transparent; color: #73726C; display: flex; align-items: center; justify-content: center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg></button>
+                  <button aria-label="Good reply" style="width: 36px; height: 36px; border: none; border-radius: 18px; background: transparent; color: #73726C; display: flex; align-items: center; justify-content: center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11v9H4v-9z"></path><path d="M7 11l4-7a2 2 0 0 1 3 2l-1 4h5.5a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.3 20H7"></path></svg></button>
+                  <button aria-label="Bad reply" style="width: 36px; height: 36px; border: none; border-radius: 18px; background: transparent; color: #73726C; display: flex; align-items: center; justify-content: center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 13V4h3v9z"></path><path d="M17 13l-4 7a2 2 0 0 1-3-2l1-4H5.5a2 2 0 0 1-2-2.3l1.2-6A2 2 0 0 1 6.7 4H17"></path></svg></button>
+                  <!-- the memories behind this reply: shows when memory was used, counts up when something is saved -->
+                  <button data-book="1" onClick="{{bookClick}}" aria-label="{{bookAria}}" style="height: 36px; padding: 0 9px 0 8px; border: none; border-radius: 18px; background: transparent; color: #73726C; display: flex; align-items: center; gap: 4px; opacity: {{bookOp}}; transition: opacity 500ms ease; pointer-events: {{bookPE}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"></path><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3"></path><path d="M9 7.5h6M9 11h4"></path></svg><span style="display: inline-block; transform-origin: 50% 55%; transform: scale({{bookNumSc}}); font-size: 12.5px; line-height: 16px; font-weight: {{bookNumW}}; color: {{bookNumColor}}; text-shadow: {{bookNumGlow}}; transition: {{bookNumTr}}">{{bookCount}}</span></button>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- AI star: shows on any selection; tap it and it unfolds into a small window right there, which can expand over the chat -->
+  <div data-pop="1" style="position: absolute; left: {{orbL}}px; top: {{orbT}}px; width: {{orbW}}px; height: {{orbH}}px; border-radius: {{orbR}}px; box-sizing: border-box; background: #FFFFFF; border: 0.5px solid rgba(31,30,29,0.14); box-shadow: {{orbShadow}}; overflow: hidden; opacity: {{orbOp}}; transform: scale({{orbSc}}); transform-origin: top right; transition: {{orbTrans}}; pointer-events: {{orbPE}}; z-index: 3">
+    <div data-pop-inner="1" aria-hidden="{{popHidden}}" style="position: absolute; top: 0; right: 0; width: {{popInnerW}}px; height: {{popInnerH}}; display: flex; flex-direction: column; opacity: {{popContentOp}}; transition: opacity 450ms ease {{popContentDelay}}ms; pointer-events: {{popPE}}">
+
+      <!-- title bar -->
+      <div style="display: flex; align-items: center; gap: 2px; height: 42px; flex: none; box-sizing: border-box; padding: 0 4px; border-bottom: 0.5px solid rgba(31,30,29,0.1)">
+        <!-- sparkle, swapped for a back arrow while editing or confirming -->
+        <div style="position: relative; width: 36px; height: 36px; flex: none">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position: absolute; left: 10px; top: 10px; opacity: {{headMemOp}}; transition: opacity 300ms ease"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"></path><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3"></path><path d="M9 7.5h6M9 11h4"></path></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(217,119,87,0.14)" stroke="#D97757" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true" style="position: absolute; left: 10px; top: 10px; opacity: {{headNoteOp}}; transition: opacity 300ms ease"><path d="M5 4h14v10l-6 6H5z"></path><path d="M13 20v-6h6"></path></svg>
+          <button data-pop-back="1" onClick="{{backClick}}" aria-label="Back" style="position: absolute; left: 0; top: 0; width: 36px; height: 36px; padding: 0; border: none; border-radius: 18px; background: transparent; color: #3D3D3A; display: flex; align-items: center; justify-content: center; opacity: {{backOp}}; transform: translateX({{backX}}px); transition: opacity 300ms ease, transform 450ms cubic-bezier(.22,1,.36,1); pointer-events: {{backPE}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+        </div>
+        <span style="flex: 1; min-width: 0; font-size: 13.5px; line-height: 18px; font-weight: 600; color: #141413; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{popTitle}}</span>
+        <button data-pop-expand="1" onClick="{{toggleExpandClick}}" aria-label="{{expandLabel}}" style="position: relative; width: 36px; height: 36px; flex: none; padding: 0; border: none; border-radius: 18px; background: transparent; color: #5E5D59; opacity: {{expBtnOp}}; transition: opacity 300ms ease; pointer-events: {{expBtnPE}}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position: absolute; left: 10px; top: 10px; opacity: {{expOp}}; transform: scale({{expSc}}); transition: opacity 300ms ease, transform 400ms cubic-bezier(.22,1,.36,1)"><path d="M14 4h6v6"></path><path d="M20 4l-7 7"></path><path d="M10 20H4v-6"></path><path d="M4 20l7-7"></path></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position: absolute; left: 10px; top: 10px; opacity: {{shrOp}}; transform: scale({{shrSc}}); transition: opacity 300ms ease, transform 400ms cubic-bezier(.22,1,.36,1)"><path d="M20 4l-6 6"></path><path d="M14 5v5h5"></path><path d="M4 20l6-6"></path><path d="M10 19v-5H5"></path></svg>
+        </button>
+        <button data-pop-close="1" onClick="{{closeClick}}" aria-label="Close side chat" style="width: 36px; height: 36px; flex: none; padding: 0; border: none; border-radius: 18px; background: transparent; color: #5E5D59; display: flex; align-items: center; justify-content: center; opacity: {{expBtnOp}}; transition: opacity 300ms ease; pointer-events: {{expBtnPE}}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+        </button>
+      </div>
+
+      <!-- MAIN: the side chat comes first; memory sits behind one row on top -->
+      <sc-if value="{{scrMain}}" hint-placeholder-val="{{true}}">
+        <div class="{{navCls}}" style="display: flex; flex-direction: column; flex: {{mainFlex}}; min-height: 0">
+          <sc-if value="{{hasMemRow}}" hint-placeholder-val="{{false}}">
+            <button data-manage="1" onClick="{{manageClick}}" aria-label="{{manageAria}}" style="margin: 10px 12px 0 12px; min-height: 44px; flex: none; display: flex; align-items: center; gap: 9px; padding: 6px 8px 6px 12px; box-sizing: border-box; border: none; border-radius: 12px; background: #F5F4ED; text-align: left">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"></path><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3"></path><path d="M9 7.5h6M9 11h4"></path></svg>
+              <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px">
+                <!-- how many memories this text leaned on -->
+                <span style="display: flex; align-items: center; gap: 6px; font-size: 13.5px; line-height: 18px; font-weight: 500; color: #141413; white-space: nowrap">{{manageLabel}}<span aria-hidden="true" style="min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 9px; background: rgba(217,119,87,0.16); color: #9A4A30; font-size: 11.5px; line-height: 18px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center">{{memCount}}</span></span>
+                <sc-if value="{{hasMemLog}}" hint-placeholder-val="{{false}}"><span class="fade" style="font-size: 11.5px; line-height: 15px; color: #73726C; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{memLogLabel}}</span></sc-if>
+              </span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5E5D59" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="M9 5l7 7-7 7"></path></svg>
+            </button>
+          </sc-if>
+          <!-- quick questions -->
+          <sc-if value="{{showMsgs}}" hint-placeholder-val="{{false}}">
+            <div data-mini-scroll="1" class="noscroll" style="flex: {{msgFlex}}; min-height: 0; overflow-y: auto; padding: 12px 14px 6px 14px; display: flex; flex-direction: column; gap: 10px">
+              <sc-for list="{{minis}}" as="mm" hint-placeholder-count="2">
+                <div style="display: flex; flex-direction: column">
+                  <sc-if value="{{mm.isQ}}" hint-placeholder-val="{{true}}"><div class="soft" style="align-self: flex-end; max-width: 230px; padding: 7px 12px; border-radius: 16px 16px 5px 16px; background: #F0EEE6; font-size: 13.5px; line-height: 19px; color: #141413">{{mm.text}}</div></sc-if>
+                  <!-- the answer's space is reserved the moment the question is sent, so the box grows once; dots sit on top until it starts -->
+                  <sc-if value="{{mm.isA}}" hint-placeholder-val="{{false}}"><div style="position: relative"><p style="margin: 0; font-family: 'Anthropic Serif', Georgia, 'Times New Roman', Times, serif; font-size: 14px; line-height: 21px; color: #141413"><sc-for list="{{mm.words}}" as="mw" hint-placeholder-count="8"><span style="position: relative; top: {{mw.dy}}px; opacity: {{mw.op}}; color: {{mw.col}}; transition: opacity 600ms ease-out, top 800ms cubic-bezier(.22,1,.36,1), color 1400ms cubic-bezier(.4,0,.2,1)">{{mw.t}}</span><span>{{mw.sp}}</span></sc-for></p><div aria-hidden="true" style="position: absolute; left: 0; top: 0; display: flex; gap: 4px; padding: 7px 2px; opacity: {{mm.dotsOp}}; transition: opacity 350ms ease; pointer-events: none"><span class="dot" style="display: block; width: 6px; height: 6px; border-radius: 50%; background: #87867F"></span><span class="dot" style="display: block; width: 6px; height: 6px; border-radius: 50%; background: #87867F; animation-delay: 150ms"></span><span class="dot" style="display: block; width: 6px; height: 6px; border-radius: 50%; background: #87867F; animation-delay: 300ms"></span></div></div></sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <!-- mini input (3 questions max) -->
+          <sc-if value="{{showMiniInput}}" hint-placeholder-val="{{false}}">
+            <div style="flex: none; padding: 8px 10px 10px 10px; display: flex; align-items: flex-end; gap: 6px">
+              <div data-mini-field="1" style="flex: 1; min-width: 0; min-height: 38px; box-sizing: border-box; padding: 9px 12px; border-radius: 19px; background: #F5F4ED; border: 1px solid {{miniBorder}}; font-size: 13.5px; line-height: 18px; color: #141413; word-break: break-word; transition: border-color 300ms ease"><span>{{miniInput}}</span><sc-if value="{{miniCaret}}" hint-placeholder-val="{{false}}"><span class="caret" style="background: #D97757; height: 16px; margin-bottom: -3px"></span></sc-if><sc-if value="{{miniPhOn}}" hint-placeholder-val="{{true}}"><span class="fade" style="color: #73726C">{{miniPh}}</span></sc-if></div>
+              <button data-mini-send="1" aria-label="Send quick question" style="width: 34px; height: 34px; margin-bottom: 2px; flex: none; border-radius: 17px; border: none; background: {{miniSendBg}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; transform: scale({{miniSendSc}}); transition: transform 200ms ease, background-color 400ms ease">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+              </button>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <!-- MEMORIES: every memory this sentence leaned on; pick one to manage -->
+      <sc-if value="{{scrMems}}" hint-placeholder-val="{{false}}">
+        <div class="{{navCls}}" style="box-sizing: border-box; padding: 10px 12px 12px 12px; display: flex; flex-direction: column; gap: 6px">
+          <span style="font-size: 12px; line-height: 16px; color: #5E5D59">This leaned on {{memCountLabel}}</span>
+          <sc-for list="{{memRows}}" as="mr" hint-placeholder-count="2">
+            <button data-mem="{{mr.id}}" onClick="{{mr.open}}" style="min-height: 44px; flex: none; display: flex; align-items: center; gap: 9px; padding: 6px 8px 6px 12px; box-sizing: border-box; border: none; border-radius: 12px; background: #F5F4ED; text-align: left">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D97757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"></path><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3"></path><path d="M9 7.5h6M9 11h4"></path></svg>
+              <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px">
+                <span style="font-size: 13px; line-height: 17px; color: {{mr.color}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{mr.text}}</span>
+                <sc-if value="{{mr.hasChip}}" hint-placeholder-val="{{false}}"><span class="fade" style="font-size: 11.5px; line-height: 15px; color: #73726C">{{mr.chip}}</span></sc-if>
+              </span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5E5D59" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="M9 5l7 7-7 7"></path></svg>
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- OPTIONS for one memory -->
+      <sc-if value="{{scrOpts}}" hint-placeholder-val="{{false}}">
+        <div class="{{navCls}}" style="height: 190px; box-sizing: border-box; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px">
+          <span style="font-size: 12px; line-height: 16px; color: #5E5D59; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{memStatus}}</span>
+          <p style="margin: 0; height: 36px; overflow: hidden; font-size: 13px; line-height: 18px; color: #141413">“{{memQuote}}”</p>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 4px">
+            <button data-opt="outdated" onClick="{{optOutdated}}" style="height: 32px; display: flex; align-items: center; gap: 7px; padding: 0 10px; border: none; border-radius: 10px; background: #F5F4ED; font-size: 13px; font-weight: 500; color: #141413;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5E5D59" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>Outdated</button>
+            <button data-opt="irrelevant" onClick="{{optIrrelevant}}" style="height: 32px; display: flex; align-items: center; gap: 7px; padding: 0 10px; border: none; border-radius: 10px; background: #F5F4ED; font-size: 13px; font-weight: 500; color: #141413;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5E5D59" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M6 18L18 6"></path></svg>Not relevant</button>
+            <button data-opt="edit" onClick="{{optEdit}}" style="height: 32px; display: flex; align-items: center; gap: 7px; padding: 0 10px; border: none; border-radius: 10px; background: #F5F4ED; font-size: 13px; font-weight: 500; color: #141413;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5E5D59" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"></path><path d="M13.5 6.5l4 4"></path></svg>Edit</button>
+            <button data-opt="forget" onClick="{{optForget}}" style="height: 32px; display: flex; align-items: center; gap: 7px; padding: 0 10px; border: none; border-radius: 10px; background: #F5F4ED; font-size: 13px; font-weight: 500; color: #141413;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5E5D59" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"></path><path d="M10 11v6M14 11v6"></path><path d="M6 7l1 13h10l1-13"></path><path d="M9 7V4h6v3"></path></svg>Forget</button>
+            <button data-opt="hide" onClick="{{optHide}}" style="height: 32px; display: flex; align-items: center; gap: 7px; padding: 0 10px; border: none; border-radius: 10px; background: #F5F4ED; font-size: 13px; font-weight: 500; color: #141413; grid-column: span 2;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5E5D59" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path><path d="M4 4l16 16"></path></svg>Don’t mention this again</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- EDIT the memory -->
+      <sc-if value="{{scrEdit}}" hint-placeholder-val="{{false}}">
+        <div class="{{navCls}}" style="height: 190px; box-sizing: border-box; padding: 12px; display: flex; flex-direction: column; gap: 10px">
+          <div data-mem-field="1" style="flex: 1; min-height: 0; overflow: hidden; box-sizing: border-box; padding: 9px 11px; border-radius: 12px; border: 1px solid {{memBorder}}; background: #FFFFFF; font-size: 13.5px; line-height: 19px; color: #141413; white-space: pre-wrap; word-break: break-word; transition: border-color 300ms ease">{{memText}}<sc-if value="{{memCaret}}" hint-placeholder-val="{{false}}"><span class="caret" style="background: #D97757; height: 17px"></span></sc-if></div>
+          <div style="display: flex; justify-content: flex-end; gap: 6px; flex: none">
+            <button onClick="{{cancelEditClick}}" style="height: 34px; padding: 0 14px; border: none; border-radius: 17px; background: transparent; font-size: 13.5px; font-weight: 500; color: #5E5D59">Cancel</button>
+            <button data-mem-save="1" onClick="{{saveMemClick}}" style="height: 34px; padding: 0 16px; border: none; border-radius: 17px; background: #141413; font-size: 13.5px; font-weight: 600; color: #FAF9F5">Save</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- DONE: what changed, the AI saying it understood, and when -->
+      <sc-if value="{{scrDone}}" hint-placeholder-val="{{false}}">
+        <div class="{{navCls}}" style="padding: 12px 14px 14px 14px; display: flex; flex-direction: column; gap: 8px">
+          <div style="display: flex; align-items: center; gap: 8px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><circle cx="12" cy="12" r="9"></circle><path d="M8 12.5l2.8 2.8L16 10"></path></svg>
+            <span style="font-size: 14px; line-height: 20px; font-weight: 600; color: #141413">{{doneTitle}}</span>
+          </div>
+          <span style="font-size: 12.5px; line-height: 18px; color: {{doneMemColor}}; text-decoration: {{doneMemDeco}}">{{doneMem}}</span>
+          <div class="soft" style="padding: 9px 11px; border-radius: 12px; background: #F5F4ED; font-family: 'Anthropic Serif', Georgia, 'Times New Roman', Times, serif; font-size: 13.5px; line-height: 20px; color: #141413; animation-delay: 350ms">{{doneAck}}</div>
+          <span style="display: flex; align-items: center; gap: 5px; font-size: 12px; line-height: 16px; color: #73726C"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>{{doneStamp}}</span>
+        </div>
+      </sc-if>
+    </div>
+
+    <!-- the floating icon: a memory mark on words that came from memory, a sticky note on everything else -->
+    <button data-orb-btn="1" onClick="{{openPopClick}}" aria-label="{{orbLabel}}" style="position: absolute; top: 0; right: 0; width: 34px; height: 34px; padding: 0; border: none; background: transparent; opacity: {{glyphOp}}; transform: scale({{glyphSc}}); transition: opacity 300ms ease, transform 500ms cubic-bezier(.34,1.56,.64,1); pointer-events: {{glyphPE}}">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position: absolute; left: 8px; top: 8px; opacity: {{orbMemOp}}; transition: opacity 300ms ease"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"></path><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3"></path><path d="M9 7.5h6M9 11h4"></path></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="rgba(217,119,87,0.14)" stroke="#D97757" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true" style="position: absolute; left: 8px; top: 8px; opacity: {{orbNoteOp}}; transition: opacity 300ms ease"><path d="M5 4h14v10l-6 6H5z"></path><path d="M13 20v-6h6"></path></svg>
+    </button>
+  </div>
+
+  <!-- Rewind hint: the same moment again, this time she taps No -->
+  <div aria-hidden="{{rwHidden}}" style="position: absolute; top: 112px; left: 0; right: 0; display: flex; justify-content: center; z-index: 6; pointer-events: none; opacity: {{rwOp}}; transform: translateY({{rwY}}px); transition: opacity 500ms ease, transform 700ms cubic-bezier(.22,1,.36,1)">
+    <div style="display: flex; align-items: center; gap: 7px; height: 32px; padding: 0 14px 0 12px; border-radius: 16px; background: #FFFFFF; border: 0.5px solid rgba(31,30,29,0.14); box-shadow: 0 4px 14px rgba(20,20,19,0.08); font-size: 12.5px; font-weight: 500; color: #3D3D3A">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="#D97757" aria-hidden="true"><path d="M11 6.5v11L3.5 12z"></path><path d="M20.5 6.5v11L13 12z"></path></svg>
+      Rewind · now she taps No
+    </div>
+  </div>
+
+  <!-- Bottom sheets: the save checklist, and the memories behind this reply -->
+  <div data-sheets="1" aria-hidden="{{sheetHidden}}" style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: 5; pointer-events: {{sheetPE}}">
+    <div onClick="{{scrimClick}}" style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: rgba(20,20,19,0.26); opacity: {{scrimOp}}; transition: opacity 450ms ease"></div>
+
+    <!-- save checklist: sensitive on top and unticked, the rest ticked -->
+    <div style="position: absolute; left: 0; right: 0; bottom: 0; box-sizing: border-box; padding: 8px 16px 30px 16px; border-radius: 26px 26px 0 0; background: #FAF9F5; box-shadow: 0 -10px 34px rgba(20,20,19,0.14); display: flex; flex-direction: column; gap: 10px; transform: translateY({{saveSheetY}}%); transition: transform 620ms cubic-bezier(.22,1,.36,1)">
+      <div aria-hidden="true" style="align-self: center; width: 38px; height: 5px; border-radius: 3px; background: #D1CFC5"></div>
+      <div style="display: flex; flex-direction: column; gap: 3px; padding: 2px 2px 0 2px">
+        <span style="font-family: 'Anthropic Serif', Georgia, 'Times New Roman', Times, serif; font-size: 21px; line-height: 27px; color: #141413">Save to memory</span>
+        <span style="font-size: 13px; line-height: 18px; color: #5E5D59">From this reply. Nothing sensitive is saved unless you tick it.</span>
+      </div>
+      <button data-select-all="1" onClick="{{selectAllClick}}" style="height: 40px; display: flex; align-items: center; gap: 10px; padding: 0 12px; border: none; border-radius: 12px; background: transparent; text-align: left">
+        <span style="width: 18px; height: 18px; flex: none; box-sizing: border-box; border-radius: 6px; border: 1.5px solid {{all.boxBorder}}; background: {{all.boxBg}}; display: flex; align-items: center; justify-content: center; transition: background-color 250ms ease, border-color 250ms ease"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: {{all.checkOp}}; transition: opacity 200ms ease"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+        <span style="font-size: 13.5px; line-height: 18px; font-weight: 500; color: #141413">Select all</span>
+      </button>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="display: flex; align-items: center; gap: 6px; padding: 0 4px; font-size: 12px; line-height: 16px; font-weight: 600; color: #5E5D59"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#B85C3E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Sensitive</span>
+        <sc-for list="{{sensItems}}" as="it" hint-placeholder-count="2">
+          <button data-pick="{{it.id}}" onClick="{{it.toggle}}" style="min-height: 46px; display: flex; align-items: center; gap: 10px; padding: 0 12px; box-sizing: border-box; border: 1px solid {{it.border}}; border-radius: 14px; background: {{it.bg}}; text-align: left; transition: background-color 250ms ease, border-color 250ms ease">
+            <span style="width: 18px; height: 18px; flex: none; box-sizing: border-box; border-radius: 6px; border: 1.5px solid {{it.boxBorder}}; background: {{it.boxBg}}; display: flex; align-items: center; justify-content: center; transition: background-color 250ms ease, border-color 250ms ease"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: {{it.checkOp}}; transition: opacity 200ms ease"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+            <span style="flex: 1; min-width: 0; font-size: 13.5px; line-height: 18px; color: #141413">{{it.text}}</span>
+          </button>
+        </sc-for>
+      </div>
+      <sc-if value="{{hasNorm}}" hint-placeholder-val="{{true}}">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="padding: 0 4px; font-size: 12px; line-height: 16px; font-weight: 600; color: #5E5D59">From this chat</span>
+        <sc-for list="{{normItems}}" as="it" hint-placeholder-count="2">
+          <button data-pick="{{it.id}}" onClick="{{it.toggle}}" style="min-height: 46px; display: flex; align-items: center; gap: 10px; padding: 0 12px; box-sizing: border-box; border: 1px solid {{it.border}}; border-radius: 14px; background: {{it.bg}}; text-align: left; transition: background-color 250ms ease, border-color 250ms ease">
+            <span style="width: 18px; height: 18px; flex: none; box-sizing: border-box; border-radius: 6px; border: 1.5px solid {{it.boxBorder}}; background: {{it.boxBg}}; display: flex; align-items: center; justify-content: center; transition: background-color 250ms ease, border-color 250ms ease"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: {{it.checkOp}}; transition: opacity 200ms ease"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+            <span style="flex: 1; min-width: 0; font-size: 13.5px; line-height: 18px; color: #141413">{{it.text}}</span>
+          </button>
+        </sc-for>
+      </div>
+      </sc-if>
+      <button data-save-confirm="1" onClick="{{saveConfirmClick}}" style="margin-top: 4px; height: 48px; border: none; border-radius: 24px; background: {{saveBtnBg}}; color: #FAF9F5; font-size: 15px; font-weight: 600; transition: background-color 300ms ease">{{saveBtnLabel}}</button>
+    </div>
+
+    <!-- the memories behind this reply -->
+    <div style="position: absolute; left: 0; right: 0; bottom: 0; box-sizing: border-box; padding: 8px 16px 30px 16px; border-radius: 26px 26px 0 0; background: #FAF9F5; box-shadow: 0 -10px 34px rgba(20,20,19,0.14); display: flex; flex-direction: column; gap: 12px; transform: translateY({{bookSheetY}}%); transition: transform 620ms cubic-bezier(.22,1,.36,1)">
+      <div aria-hidden="true" style="align-self: center; width: 38px; height: 5px; border-radius: 3px; background: #D1CFC5"></div>
+      <span style="padding: 2px 2px 0 2px; font-family: 'Anthropic Serif', Georgia, 'Times New Roman', Times, serif; font-size: 21px; line-height: 27px; color: #141413">Memories in this reply</span>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="padding: 0 4px; font-size: 12px; line-height: 16px; font-weight: 600; color: #5E5D59">Used in this reply</span>
+        <sc-if value="{{hasUsed}}" hint-placeholder-val="{{true}}">
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <sc-for list="{{usedItems}}" as="u" hint-placeholder-count="2">
+              <div style="min-height: 42px; display: flex; align-items: center; gap: 10px; padding: 0 12px; box-sizing: border-box; border-radius: 12px; background: #F0EEE6">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#B85C3E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"></path><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3"></path><path d="M9 7.5h6M9 11h4"></path></svg>
+                <span style="flex: 1; min-width: 0; font-size: 13.5px; line-height: 18px; color: {{u.color}}; text-decoration: {{u.deco}}; text-decoration-color: rgba(94,93,89,0.85)">{{u.text}}</span><sc-if value="{{u.hasTag}}" hint-placeholder-val="{{false}}"><span style="flex: none; height: 20px; padding: 0 8px; border-radius: 10px; background: {{u.tagBg}}; color: {{u.tagColor}}; font-size: 11px; line-height: 20px; font-weight: 600">{{u.tag}}</span></sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{noUsed}}" hint-placeholder-val="{{false}}">
+          <div style="padding: 10px 12px; border-radius: 12px; background: #F0EEE6; font-size: 13px; line-height: 18px; color: #5E5D59">Nothing from memory. You asked me not to use sensitive memories here.</div>
+        </sc-if>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 4px">
+          <span style="font-size: 12px; line-height: 16px; font-weight: 600; color: #5E5D59">Saved from this reply</span>
+          <button data-update="1" onClick="{{updateClick}}" style="height: 30px; padding: 0 12px; border: 0.5px solid rgba(31,30,29,0.18); border-radius: 15px; background: #FFFFFF; font-size: 12.5px; font-weight: 500; color: #141413">{{updateLabel}}</button>
+        </div>
+        <sc-if value="{{noSaved}}" hint-placeholder-val="{{false}}">
+          <div style="padding: 10px 12px; border-radius: 12px; background: #F0EEE6; font-size: 13px; line-height: 18px; color: #5E5D59">Nothing saved from this reply yet.</div>
+        </sc-if>
+        <sc-for list="{{savedItems}}" as="v" hint-placeholder-count="2">
+          <div style="min-height: 42px; display: flex; align-items: center; gap: 10px; padding: 0 12px; box-sizing: border-box; border-radius: 12px; background: #FFFFFF; border: 0.5px solid rgba(31,30,29,0.12)">
+            <span style="flex: 1; min-width: 0; font-size: 13.5px; line-height: 18px; color: #141413">{{v.text}}</span>
+            <sc-if value="{{v.hasTag}}" hint-placeholder-val="{{false}}"><span style="flex: none; height: 20px; padding: 0 8px; border-radius: 10px; background: {{v.tagBg}}; color: {{v.tagColor}}; font-size: 11px; line-height: 20px; font-weight: 600">{{v.tag}}</span></sc-if>
+          </div>
+        </sc-for>
+      </div>
+      <button onClick="{{allMemClick}}" style="height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 4px; border: none; background: transparent; font-size: 14px; font-weight: 500; color: #141413">All memories<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5E5D59" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="M9 5l7 7-7 7"></path></svg></button>
+    </div>
+  </div>
+
+  <!-- New chat, continued from the side chat -->
+  <div data-nc="1" aria-hidden="{{ncHidden}}" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #FAF9F5; z-index: 3; opacity: {{ncOp}}; transition: opacity 650ms ease; pointer-events: {{ncPE}}">
+    <sc-if value="{{ncOn}}" hint-placeholder-val="{{false}}">
+      <div style="position: absolute; top: 0; left: 0; right: 0; height: 104px; box-sizing: border-box; padding: 54px 8px 6px 8px; display: flex; align-items: center; justify-content: space-between">
+        <button aria-label="Open menu" style="width: 44px; height: 44px; border: none; background: transparent; border-radius: 22px; display: flex; align-items: center; justify-content: center; color: #3D3D3A">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"></path></svg>
+        </button>
+        <div class="soft" style="font-size: 16px; line-height: 22px; font-weight: 500; animation-delay: 200ms">Exploring Seattle</div>
+        <button aria-label="Start a new chat" style="width: 44px; height: 44px; border: none; background: transparent; border-radius: 22px; display: flex; align-items: center; justify-content: center; color: #3D3D3A">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+        </button>
+      </div>
+      <div class="noscroll" style="position: absolute; top: 104px; left: 0; right: 0; bottom: 102px; overflow-y: auto">
+        <div style="box-sizing: border-box; padding: 10px 20px 20px 20px; display: flex; flex-direction: column; gap: 18px">
+          <!-- where this chat came from -->
+          <div class="soft" style="display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 16px; background: #F5F4ED; animation-delay: 300ms">
+            <div style="width: 30px; height: 30px; flex: none; border-radius: 10px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(20,20,19,0.06); display: flex; align-items: center; justify-content: center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(217,119,87,0.14)" stroke="#D97757" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14v10l-6 6H5z"></path><path d="M13 20v-6h6"></path></svg>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+              <span style="font-size: 13.5px; line-height: 19px; font-weight: 600; color: #141413">Started as a side chat</span>
+              <span style="font-size: 12.5px; line-height: 18px; color: #5E5D59">3 quick questions about “Seattle”, branched from your chat “Missing someone”. That chat stays as it was.</span>
+              <button data-back-main="1" onClick="{{backToMainClick}}" style="align-self: flex-start; height: 30px; margin: 2px 0 -6px 0; padding: 0; border: none; background: none; font-size: 12.5px; font-weight: 500; color: #141413; text-decoration: underline; text-underline-offset: 2px">Back to original chat</button>
+            </div>
+          </div>
+          <!-- the side chat, now full size -->
+          <sc-for list="{{ncMsgs}}" as="nm" hint-placeholder-count="2">
+            <div class="soft" style="display: flex; flex-direction: column; animation-delay: {{nm.delay}}ms">
+              <sc-if value="{{nm.isQ}}" hint-placeholder-val="{{true}}"><div style="align-self: flex-end; max-width: 280px; background: #F0EEE6; color: #141413; padding: 10px 14px; border-radius: 20px 20px 6px 20px; font-size: 16px; line-height: 22px">{{nm.text}}</div></sc-if>
+              <sc-if value="{{nm.isA}}" hint-placeholder-val="{{false}}"><p style="margin: 0; font-family: 'Anthropic Serif', Georgia, 'Times New Roman', Times, serif; font-size: 15.5px; line-height: 23px; color: #141413">{{nm.text}}</p></sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- Composer: the chat input bar -->
+  <div style="position: absolute; left: 12px; right: 12px; bottom: {{composerBottom}}px; transition: bottom 520ms cubic-bezier(.32,.72,0,1), border-color 400ms ease; background: #FFFFFF; border: 1px solid {{composerBorder}}; border-radius: 26px; padding: 5px; box-sizing: border-box; box-shadow: 0 1px 2px rgba(20,20,19,0.04), 0 6px 18px rgba(20,20,19,0.05); display: flex; flex-direction: column; z-index: 3">
+
+    <!-- Sensitive-memory ask: eases open while the AI is still thinking, fades away once answered -->
+    <div aria-hidden="{{trayHidden}}" style="height: {{trayH}}px; margin-bottom: {{trayGap}}px; opacity: {{trayOp}}; overflow: hidden; border-radius: 20px; background: #F5F4ED; transition: height 950ms cubic-bezier(.22,1,.36,1), margin-bottom 950ms cubic-bezier(.22,1,.36,1), opacity 700ms ease; pointer-events: {{trayPE}}">
+      <div style="box-sizing: border-box; height: 100px; padding: 14px; display: flex; flex-direction: column">
+        <div style="display: flex; align-items: center; gap: 8px; height: 20px; margin-bottom: 12px; opacity: {{t1Op}}; transform: translateY({{t1Y}}px); transition: {{t1Tr}}">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#D97757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+          <span style="font-size: 15px; line-height: 20px; font-weight: 600; color: #141413">Use sensitive memories about {{name}}?</span>
+        </div>
+        <div style="display: flex; gap: 8px; opacity: {{t3Op}}; transform: translateY({{t3Y}}px); transition: {{t3Tr}}">
+          <button onClick="{{pickNo}}" style="flex: 1; height: 40px; border-radius: 20px; border: 1px solid rgba(31,30,29,0.15); background: #FFFFFF; font-size: 15px; font-weight: 500; color: #141413">No</button>
+          <button onClick="{{pickYes}}" style="flex: 1; height: 40px; border-radius: 20px; border: none; background: #141413; color: #FAF9F5; font-size: 15px; font-weight: 600; transform: scale({{yesScale}}); opacity: {{yesOp}}; transition: transform 220ms cubic-bezier(.22,1,.36,1), opacity 220ms ease">Yes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- After the 3rd quick question: take it further -->
+    <sc-if value="{{showChoices}}" hint-placeholder-val="{{false}}">
+      <div class="soft" style="display: flex; gap: 8px; padding: 3px">
+        <button onClick="{{chooseEndClick}}" style="flex: 1; height: 38px; border-radius: 19px; border: 1px solid rgba(31,30,29,0.15); background: #FFFFFF; font-size: 14px; font-weight: 500; color: #141413">Add to this chat</button>
+        <button data-choice-new="1" onClick="{{newChatClick}}" style="flex: 1; height: 38px; border-radius: 19px; border: none; background: #141413; font-size: 14px; font-weight: 600; color: #FAF9F5">Continue in new chat</button>
+      </div>
+    </sc-if>
+
+    <!-- Input row -->
+    <sc-if value="{{showInputRow}}" hint-placeholder-val="{{true}}">
+      <div style="display: flex; align-items: flex-end; min-height: 44px">
+        <button aria-label="Add attachment" style="width: 36px; height: 36px; margin: 4px; flex: none; border-radius: 18px; border: none; background: transparent; display: flex; align-items: center; justify-content: center; color: #5E5D59">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+        </button>
+        <div data-main-field="1" style="flex: 1; min-width: 0; padding: 11px 6px 11px 2px; font-size: 16px; line-height: 22px; color: #141413; white-space: pre-wrap; word-break: break-word"><span style="opacity: {{inputOp}}; transition: opacity 220ms ease">{{typed}}</span><sc-if value="{{showCaret}}" hint-placeholder-val="{{false}}"><span class="caret" style="background: #D97757"></span></sc-if><sc-if value="{{showPlaceholder}}" hint-placeholder-val="{{true}}"><span class="fade" style="color: #73726C">{{mainPh}}</span></sc-if></div>
+        <button data-main-send="1" aria-label="Send message" style="width: 36px; height: 36px; margin: 4px; flex: none; border-radius: 18px; border: none; background: {{sendBg}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; transform: scale({{sendScale}}); transition: transform 220ms cubic-bezier(.22,1,.36,1), background-color 450ms ease">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+        </button>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- Keyboard -->
+  <div aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 0; height: 291px; box-sizing: border-box; padding: 8px 3px 0 3px; background: #D1CFC5; display: flex; flex-direction: column; gap: 12px; transform: translateY({{kbY}}%); transition: transform 520ms cubic-bezier(.32,.72,0,1); z-index: 4; font-family: -apple-system, system-ui, sans-serif">
+    <div style="display: flex; gap: 6px; justify-content: center">
+      <sc-for list="{{row1}}" as="k" hint-placeholder-count="10">
+        <div style="position: relative; width: 33px; height: 42px; border-radius: 5px; background: {{k.bg}}; box-shadow: 0 1px 0 rgba(20,20,19,0.3); display: flex; align-items: center; justify-content: center; font-size: 22px; color: #141413; transition: background-color 140ms ease">{{k.label}}<sc-if value="{{k.active}}" hint-placeholder-val="{{false}}"><div style="position: absolute; left: 50%; bottom: 46px; transform: translateX(-50%); width: 46px; height: 52px; border-radius: 8px; background: #FFFFFF; box-shadow: 0 2px 10px rgba(20,20,19,0.25); display: flex; align-items: center; justify-content: center; font-size: 30px; color: #141413">{{k.label}}</div></sc-if></div>
+      </sc-for>
+    </div>
+    <div style="display: flex; gap: 6px; justify-content: center">
+      <sc-for list="{{row2}}" as="k" hint-placeholder-count="9">
+        <div style="position: relative; width: 33px; height: 42px; border-radius: 5px; background: {{k.bg}}; box-shadow: 0 1px 0 rgba(20,20,19,0.3); display: flex; align-items: center; justify-content: center; font-size: 22px; color: #141413; transition: background-color 140ms ease">{{k.label}}<sc-if value="{{k.active}}" hint-placeholder-val="{{false}}"><div style="position: absolute; left: 50%; bottom: 46px; transform: translateX(-50%); width: 46px; height: 52px; border-radius: 8px; background: #FFFFFF; box-shadow: 0 2px 10px rgba(20,20,19,0.25); display: flex; align-items: center; justify-content: center; font-size: 30px; color: #141413">{{k.label}}</div></sc-if></div>
+      </sc-for>
+    </div>
+    <div style="display: flex; justify-content: space-between">
+      <div style="width: 42px; height: 42px; border-radius: 5px; background: {{shiftBg}}; box-shadow: 0 1px 0 rgba(20,20,19,0.3); display: flex; align-items: center; justify-content: center; color: #141413; transition: background-color 140ms ease">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="{{shiftFill}}" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l8 8h-4v7H8v-7H4z"></path></svg>
+      </div>
+      <div style="display: flex; gap: 6px">
+        <sc-for list="{{row3}}" as="k" hint-placeholder-count="7">
+          <div style="position: relative; width: 33px; height: 42px; border-radius: 5px; background: {{k.bg}}; box-shadow: 0 1px 0 rgba(20,20,19,0.3); display: flex; align-items: center; justify-content: center; font-size: 22px; color: #141413; transition: background-color 140ms ease">{{k.label}}<sc-if value="{{k.active}}" hint-placeholder-val="{{false}}"><div style="position: absolute; left: 50%; bottom: 46px; transform: translateX(-50%); width: 46px; height: 52px; border-radius: 8px; background: #FFFFFF; box-shadow: 0 2px 10px rgba(20,20,19,0.25); display: flex; align-items: center; justify-content: center; font-size: 30px; color: #141413">{{k.label}}</div></sc-if></div>
+        </sc-for>
+      </div>
+      <div style="width: 42px; height: 42px; border-radius: 5px; background: {{bsBg}}; box-shadow: 0 1px 0 rgba(20,20,19,0.3); display: flex; align-items: center; justify-content: center; color: #141413; transition: background-color 120ms ease">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 5H8l-6 7 6 7h13z"></path><path d="M12 9l6 6M18 9l-6 6"></path></svg>
+      </div>
+    </div>
+    <div style="display: flex; gap: 6px">
+      <div style="width: 88px; height: 42px; border-radius: 5px; background: #B0AEA5; box-shadow: 0 1px 0 rgba(20,20,19,0.3); display: flex; align-items: center; justify-content: center; font-size: 16px; color: #141413">123</div>
+      <div style="flex: 1; height: 42px; border-radius: 5px; background: {{spaceBg}}; box-shadow: 0 1px 0 rgba(20,20,19,0.3); display: flex; align-items: center; justify-content: center; font-size: 16px; color: #141413; transition: background-color 140ms ease">space</div>
+      <div style="width: 88px; height: 42px; border-radius: 5px; background: #B0AEA5; box-shadow: 0 1px 0 rgba(20,20,19,0.3); display: flex; align-items: center; justify-content: center; font-size: 16px; color: #141413">return</div>
+    </div>
+    <div style="display: flex; justify-content: space-between; padding: 2px 20px 0 20px; color: #4D4C48">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path></svg>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3"></path></svg>
+    </div>
+  </div>
+
+  <!-- Home indicator -->
+  <div aria-hidden="true" style="position: absolute; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: #141413; z-index: 6"></div>
+
+  <!-- Replay -->
+  <sc-if value="{{ended}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; top: 106px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 7; pointer-events: none">
+      <button onClick="{{replay}}" class="soft" style="pointer-events: auto; display: flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 18px; border: 0.5px solid rgba(31,30,29,0.15); background: #FFFFFF; box-shadow: 0 4px 14px rgba(20,20,19,0.08); font-size: 13px; font-weight: 500; color: #3D3D3A">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v5h5"></path></svg>
+        Replay
+      </button>
+    </div>
+  </sc-if>
+
+  <!-- Touch indicator (the user's finger) -->
+  <div aria-hidden="true" style="position: absolute; left: {{fLeft}}px; top: {{fTop}}px; width: 44px; height: 44px; box-sizing: border-box; border-radius: 50%; background: {{fBg}}; border: 2px solid rgba(255,255,255,0.9); box-shadow: 0 2px 12px rgba(20,20,19,0.18); opacity: {{fOp}}; transform: scale({{fScale}}); transition: {{fTrans}}; pointer-events: none; z-index: 10"></div>
+
+  <!-- Playback: drag through the whole demo. Shows on hover, stays while paused or dragging. -->
+  <div data-pause="1" class="scrubbar" data-scrub-compact="1" data-on="{{scrubOnAttr}}" onPointerDown="{{stopPtr}}" style="position: absolute; top: 10px; left: 50%; width: 276px; margin-left: -138px; height: 30px; z-index: 60; display: flex; align-items: center; gap: 6px; padding: 0 4px 0 4px; box-sizing: border-box; border-radius: 15px; background-color: rgba(20,20,19,0.84); color: #FAF9F5; box-shadow: 0 6px 18px rgba(20,20,19,0.18)">
+    <button onClick="{{playClick}}" aria-label="{{playLabel}}" style="width: 24px; height: 24px; flex: none; padding: 0; border: none; border-radius: 12px; background: transparent; color: #FAF9F5; display: flex; align-items: center; justify-content: center; cursor: pointer">
+      <sc-if value="{{showPlayIcon}}" hint-placeholder-val="{{false}}"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.8v14.4a1 1 0 0 0 1.5.86l11.5-7.2a1 1 0 0 0 0-1.72L8.5 3.94A1 1 0 0 0 7 4.8z"></path></svg></sc-if>
+      <sc-if value="{{showPauseIcon}}" hint-placeholder-val="{{true}}"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5.5" y="4" width="4.5" height="16" rx="1.4"></rect><rect x="14" y="4" width="4.5" height="16" rx="1.4"></rect></svg></sc-if>
+    </button>
+    <div data-scrub-track="1" onPointerDown="{{scrubDown}}" style="position: relative; flex: 1; height: 26px; display: flex; align-items: center; cursor: pointer; touch-action: none">
+      <div style="position: relative; width: 100%; height: 4px; border-radius: 2px; background: rgba(250,249,245,0.22)">
+        <div data-scrub-fill="1" style="position: absolute; left: 0; top: 0; bottom: 0; width: {{scrubPct}}%; border-radius: 2px; background: #FAF9F5"></div>
+        <div data-scrub-thumb="1" style="position: absolute; top: 50%; left: {{scrubPct}}%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: #FAF9F5; box-shadow: 0 1px 4px rgba(0,0,0,0.3)"></div>
+      </div>
+    </div>
+    <span data-scrub-time="1" style="flex: none; min-width: 58px; text-align: right; font-size: 10.5px; line-height: 14px; font-variant-numeric: tabular-nums; color: rgba(250,249,245,0.82)">{{scrubTime}}</span>
+    <button data-scrub-restart="1" onClick="{{restartClick}}" aria-label="Restart the demo" style="width: 24px; height: 24px; flex: none; padding: 0; border: none; border-radius: 12px; background: transparent; color: #FAF9F5; display: flex; align-items: center; justify-content: center; cursor: pointer">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v5h5"></path><path d="M5.6 15a7.5 7.5 0 1 0 1.7-7.7L4 9"></path></svg>
+    </button>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"personName":{"editor":"text","default":"Nick","section":"Story"},"speed":{"editor":"range","default":1,"min":0.5,"max":2,"step":0.25,"unit":"x","section":"Playback"},"loop":{"editor":"boolean","default":true,"section":"Playback"},"showTouches":{"editor":"boolean","default":true,"section":"Playback"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  // this artboard shows one answer to the ask
+  variant() {
+    return 'yes';
+  }
+
+  base() {
+    return {
+      fingerX: 250, fingerY: 900, fingerOn: false, fingerDown: false,
+      focus: '', kbUp: false, typed: '', inputFade: false, activeKey: '', shift: false, bsDown: false,
+      sendDown: false, sent: false, sentText: '', bubbleUp: false,
+      thinking: false, stepsDone: 0, collapsed: false,
+      words: 0, replyAuto: false,
+      tray: 'closed', consent: null, yesDown: false, savedPill: false, ended: false,
+      selS: -1, selE: -1, selA: -1, dragging: false,
+      iconX: 0, iconY: 0, iconB: 0, iconFor: '', orbShown: false, memKey: '', memId: '', memState: {}, doneMem: '', doneMemStruck: false, doneAck: '',
+      popOpen: false, popMode: 'main', popH: 200, expanded: false, navDir: 'fwd',
+      memLog: {}, memCur: {}, clock: 0, factsSel: [], doneSub: '', doneStamp: '',
+      memText: '', doneTitle: '', doneText: '',
+      miniInput: '', miniCount: 0, miniTyping: -1, miniRev: [0, 0, 0], miniDone: false, miniSendDown: false,
+      noteOn: false, ncOn: false, ncGrow: false,
+      toolOn: false, miniThread: 'seattle', seattleMoved: false,
+      footOn: false, sheet: '', picks: { s1: false, s2: false, n1: true, n2: true }, saved: [], saveDone: false, bookOn: false, savedVisible: false, bookGlow: false,
+      rewindHint: false, rewinding: false, titleKeep: false
+    };
+  }
+
+  personName() {
+    const raw = this.props.personName == null ? 'Nick' : String(this.props.personName);
+    return raw.trim() || 'Nick';
+  }
+
+  message() {
+    return 'I still miss ' + this.personName() + ' after all the abuse';
+  }
+
+  // ---------- memory model ----------
+  // each memory: what was saved, how the demo corrects it, and the clean version the AI stores after an edit
+  memDefs() {
+    const n = this.personName();
+    return {
+      months: { text: 'Things with ' + n + ' ended 6 months ago.', typed: 'It’s been 4 months.', edited: 'It’s been 4 months since things ended.' },
+      moved: { text: n + ' moved to Seattle.', typed: 'It wasn’t ' + n + ' who moved to Seattle, it was Nate, my elder sister’s bf.', edited: 'Nate, your elder sister’s boyfriend, moved to Seattle.' },
+      fav: { text: 'Seattle is your favourite city.' },
+      ex: { text: n + ' was your partner.' },
+      insta: { text: 'You still follow ' + n + ' on Instagram.' }
+    };
+  }
+
+  idsFor(key) {
+    if (key === 'months') return ['months'];
+    if (key === 'seattle') return ['moved', 'fav'];
+    if (key === 'nick') return ['ex'];
+    if (key === 'insta') return ['insta'];
+    return [];
+  }
+
+  memTextOf(id) {
+    const s = this.state || {};
+    const d = this.memDefs()[id];
+    return ((s.memCur || {})[id]) || (d ? d.text : '');
+  }
+
+  // which words in the reply came from memory
+  memRanges() {
+    const m = this.model();
+    const n = this.personName();
+    const out = { months: null, seattle: null, nick: [], nickInSea: -1, fav: null, insta: null };
+    const ig = m.words.findIndex((w) => w.t.indexOf('Instagram') === 0);
+    if (ig >= 0) out.insta = m.sents[m.words[ig].s];
+    const six = m.words.findIndex((w) => w.t === '6');
+    if (six >= 0) out.months = [six, six + 1];
+    const sea = this.seattleIdx();
+    if (sea >= 0) {
+      const r = m.sents[m.words[sea].s];
+      out.seattle = r;
+      for (let i = r[0]; i <= r[1]; i++) {
+        if (out.nickInSea < 0 && m.words[i].t.indexOf(n) === 0) out.nickInSea = i;
+        if (!out.fav && m.words[i].t === 'your' && i > sea) out.fav = [i, i + 2];
+      }
+    }
+    m.words.forEach((w, i) => { if (w.t.indexOf(n) === 0) out.nick.push(i); });
+    return out;
+  }
+
+  memKeyFor(a, b) {
+    if (a == null || a < 0) return '';
+    const r = this.memRanges();
+    const hit = (x) => x && a <= x[1] && b >= x[0];
+    if (hit(r.months)) return 'months';
+    if (hit(r.seattle)) return 'seattle';
+    if (hit(r.insta)) return 'insta';
+    if (r.nick.some((i) => i >= a && i <= b)) return 'nick';
+    return '';
+  }
+
+  // every change is time-stamped, so the window can say "updated 9:02" and "last 9:15, before that 9:02"
+  logUpdate(id) {
+    const s = this.state || {};
+    const times = ['8:58', '9:02', '9:15', '9:21', '9:24', '9:30', '9:36'];
+    const now = times[Math.min(s.clock || 0, times.length - 1)];
+    const list = (((s.memLog || {})[id]) || []).concat([now]);
+    const stamp = list.length > 1 ? 'Last updated ' + now + ' · before that ' + list[list.length - 2] : 'Updated ' + now;
+    const memLog = Object.assign({}, s.memLog);
+    memLog[id] = list;
+    return { stamp: stamp, st: { memLog: memLog, clock: (s.clock || 0) + 1 } };
+  }
+
+  // the AI's own words, so the user can tell it understood
+  ackFor(id, action) {
+    const n = this.personName();
+    if (action === 'edit') {
+      if (id === 'moved') return 'Got it. It was Nate who moved to Seattle, not ' + n + '. I’ll keep that straight from now on.';
+      if (id === 'months') return 'Thanks for correcting me. It’s been 4 months, and I’ll keep that in mind.';
+      return 'Got it. I’ve updated what I remember.';
+    }
+    if (action === 'outdated' && id === 'insta') return 'Got it, that’s in the past now. I won’t assume you still see his posts.';
+    if (action === 'outdated') return id === 'moved' ? 'Understood. I won’t assume Nate still lives in Seattle.' : 'Understood. I won’t lean on this anymore.';
+    if (action === 'irrelevant') return 'Got it. I’ll keep this out of conversations like this one.';
+    if (action === 'forget') return 'Done. I’ve let this go completely.';
+    return 'Okay. I won’t bring this up again unless you do.';
+  }
+
+  // opening "Manage memory": a list when the sentence leaned on several memories, straight to the options when just one
+  openManage() {
+    const s = this.state || {};
+    const ids = this.idsFor(s.memKey);
+    if (ids.length > 1) this.setState({ popMode: 'mems', navDir: 'fwd' });
+    else this.setState({ popMode: 'opts', navDir: 'fwd', memId: ids[0] || '' });
+  }
+
+  openMem(id) {
+    this.setState({ popMode: 'opts', navDir: 'fwd', memId: id });
+  }
+
+  saveMem() {
+    const s = this.state || {};
+    const id = s.memId;
+    const d = this.memDefs()[id] || {};
+    const typed = s.memText || '';
+    const saved = d.edited && typed === d.typed ? d.edited : (typed || this.memTextOf(id));
+    const log = this.logUpdate(id);
+    const memCur = Object.assign({}, s.memCur);
+    memCur[id] = saved;
+    this.setState(Object.assign({
+      focus: '', kbUp: false, popMode: 'done', navDir: 'fwd', memCur: memCur,
+      doneTitle: 'Memory updated', doneMem: 'Saved as: ' + saved, doneMemStruck: false,
+      doneAck: this.ackFor(id, 'edit'), doneStamp: log.stamp
+    }, log.st));
+  }
+
+  applyOpt(kind) {
+    const s = this.state || {};
+    const id = s.memId;
+    const titles = { outdated: 'Marked as outdated', irrelevant: 'Not used here', forget: 'Forgotten', hide: 'Won’t mention again' };
+    const log = this.logUpdate(id);
+    const memState = Object.assign({}, s.memState);
+    memState[id] = kind;
+    this.setState(Object.assign({
+      popMode: 'done', navDir: 'fwd', memState: memState,
+      doneTitle: titles[kind], doneMem: this.memTextOf(id), doneMemStruck: kind !== 'hide',
+      doneAck: this.ackFor(id, kind), doneStamp: log.stamp
+    }, log.st));
+  }
+
+  goBack() {
+    const s = this.state || {};
+    const multi = this.idsFor(s.memKey).length > 1;
+    let to = 'main';
+    if (s.popMode === 'done') to = multi ? 'mems' : 'opts';
+    else if (s.popMode === 'edit') to = 'opts';
+    else if (s.popMode === 'opts') to = multi ? 'mems' : 'main';
+    this.setState({ popMode: to, navDir: 'back', focus: '', kbUp: false });
+  }
+
+  // quick questions per side chat
+  qaFor(thread) {
+    if (thread === 'nick') {
+      return [
+        { q: 'How common is the name ' + this.personName() + ' by the way?', a: 'Pretty common. Nicholas has been a well-loved name for generations in English-speaking countries, and Nick is its everyday short form.' }
+      ];
+    }
+    if (thread === 'seattle') {
+      return [
+        { q: 'Is Seattle pretty by the way?', a: 'It really is. Water on almost every side, mountains on clear days, and lots of green from all that rain.' },
+        { q: 'I heard Twin Peaks was shot there?', a: 'Yes, mostly just outside the city, in Snoqualmie and North Bend. The waterfall from the opening credits is still there.' },
+        { q: 'Is it worth visiting in spring?', a: 'Very. Cherry blossoms on the university campus, fewer crowds, and mild days made for walking.' }
+      ];
+    }
+    return [];
+  }
+
+  qa() {
+    return this.qaFor((this.state || {}).miniThread || 'seattle');
+  }
+
+  threadFor(i) {
+    const w = this.model().words[i];
+    if (!w) return 'other';
+    if (w.t.indexOf('Seattle') === 0) return 'seattle';
+    if (w.t.indexOf(this.personName()) === 0) return 'nick';
+    return 'other';
+  }
+
+  // The reply: paragraphs -> sentences
+  consentNow() {
+    return this._forceConsent != null ? this._forceConsent : (this.state || {}).consent;
+  }
+
+  modelFor(c) {
+    const prev = this._forceConsent;
+    this._forceConsent = c;
+    const mm = this.model();
+    this._forceConsent = prev;
+    return mm;
+  }
+
+  paras() {
+    const n = this.personName();
+    if (this.consentNow() === false) return this.parasNoMemory();
+    return [
+      [
+        'Of course you still miss ' + n + '.',
+        'It’s been 6 months, and feelings like this often come back in waves.',
+        'Missing someone who hurt you doesn’t make you weak or confused.',
+        'It usually means there were real moments of closeness mixed in with the harm, and your heart remembers both.'
+      ],
+      [
+        'It can help to notice when the missing shows up.',
+        'Late at night, or after something reminds you of the good days?',
+        'And since ' + n + ' moved to Seattle, your favourite city, even small things from there can pull you right back.',
+        'Abusive relationships often move in a cycle of hurt, then warmth, and the warmth is what the mind holds onto.'
+      ],
+      [
+        'If you’re up for it, jot down the moments you miss ' + n + ' most and what you were feeling just before.',
+        'It might also help to mute him for a while, since you still follow him on Instagram.',
+        'Within a week or two a pattern usually shows, and seeing it clearly makes the pull feel less like a verdict and more like something you understand.'
+      ],
+      [
+        'There’s no rush with any of this.',
+        'What’s been bringing all of this up lately?'
+      ]
+    ];
+  }
+
+  parasNoMemory() {
+    return [
+      [
+        'It makes sense that you still miss them.',
+        'Missing someone who hurt you doesn’t mean you’re weak or confused.',
+        'Relationships with harm in them often had real warmth too, and your heart can hold on to both at once.'
+      ],
+      [
+        'Hurt and closeness often come in a cycle, and that cycle can make the bond feel stronger, not weaker.',
+        'It can help to notice when the missing shows up, late at night or after a reminder of the good days, and what it’s really reaching for.'
+      ],
+      [
+        'Be gentle with yourself while you heal.',
+        'Lean on people who feel safe, and if it gets heavy, a counsellor who understands abuse can help you untangle it.',
+        'Missing someone and choosing to stay away can both be true.'
+      ]
+    ];
+  }
+
+  model() {
+    const n = this.personName() + '|' + (this.consentNow() === false ? 'no' : 'yes');
+    if (this._m && this._m.n === n) return this._m;
+    const words = [];
+    const sents = [];
+    const paraR = [];
+    let si = 0;
+    this.paras().forEach((p, pi) => {
+      const pStart = words.length;
+      p.forEach((sent) => {
+        const sStart = words.length;
+        sent.split(' ').forEach((t) => words.push({ t: t, p: pi, s: si }));
+        sents.push([sStart, words.length - 1]);
+        si++;
+      });
+      paraR.push([pStart, words.length - 1]);
+    });
+    this._m = { n: n, words: words, sents: sents, paras: paraR };
+    return this._m;
+  }
+
+  // Thinking: one line at a time. It rests on "Asking..." while the input box asks.
+  stepList() {
+    const n = this.personName();
+    const no = (this.state || {}).consent === false;
+    return [
+      { label: 'Noticing a sensitive topic: past abuse' },
+      { label: 'Found sensitive memories about ' + n },
+      { label: 'Asking before using them' },
+      { label: no ? 'Leaving saved memories out' : 'Bringing in what you\u2019ve shared before' },
+      { label: 'Generating a calm response' }
+    ];
+  }
+
+  // ---------- lifecycle ----------
+  componentDidMount() {
+    this._t = [];
+    this._q = [];
+    this._vt = 0;
+    this.measureTotal();
+    this.play();
+    this._tick();
+  }
+
+  componentWillUnmount() {
+    this.clear();
+    clearTimeout(this._tickT);
+    this._tickT = null;
+    if (this._scrubFns) { window.removeEventListener('pointermove', this._scrubFns.move); window.removeEventListener('pointerup', this._scrubFns.up); window.removeEventListener('pointercancel', this._scrubFns.up); }
+    clearTimeout(this._orbT);
+    this._untm(this._uiT);
+    this.clearUi();
+    if (this._raf) cancelAnimationFrame(this._raf);
+    this._raf = null;
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const s = this.state || {};
+    const p = prevState || {};
+    if (s.scrollTo !== p.scrollTo || s.footOn !== p.footOn || s.saveDone !== p.saveDone || s.words !== p.words || s.tray !== p.tray || s.savedPill !== p.savedPill || s.collapsed !== p.collapsed || s.stepsDone !== p.stepsDone || s.replyAuto !== p.replyAuto) {
+      this.follow();
+    }
+    if (s.selS !== p.selS || s.selE !== p.selE) this.placeIcon();
+    this.measurePop();
+    if (s.miniRev !== p.miniRev || s.miniCount !== p.miniCount || s.expanded !== p.expanded || s.kbUp !== p.kbUp) {
+      const sc = this.q('[data-mini-scroll]');
+      if (sc && sc.scrollHeight > sc.clientHeight) {
+        try { sc.scrollTo({ top: sc.scrollHeight, behavior: 'smooth' }); } catch (err) { sc.scrollTop = sc.scrollHeight; }
+      }
+    }
+  }
+
+  // ---------- one timeline you can play, pause and scrub ----------
+  // every step is scheduled on a virtual clock (this._vt, ms since the demo started)
+  _tm(fn, ms) {
+    if (!this._q) this._q = [];
+    this._tk = (this._tk || 0) + 1;
+    const rec = { key: this._tk, due: (this._vt || 0) + Math.max(0, ms || 0), fn: fn };
+    let i = this._q.length;
+    while (i > 0 && this._q[i - 1].due > rec.due) i--;
+    this._q.splice(i, 0, rec);
+    return rec.key;
+  }
+
+  _untm(key) {
+    if (!this._q || key == null) return;
+    const i = this._q.findIndex((r) => r.key === key);
+    if (i >= 0) this._q.splice(i, 1);
+  }
+
+  // run everything due by time T, in order (a replay from the start carries on from 0)
+  _runDue(T) {
+    let guard = 0;
+    while (this._q && this._q.length && this._q[0].due <= T && guard++ < 50000) {
+      const r = this._q.shift();
+      const ep = this._epoch;
+      this._vt = r.due;
+      r.fn();
+      if (this._epoch !== ep) T = (this._vt || 0) + Math.max(0, T - r.due);
+    }
+    this._vt = T;
+  }
+
+  // the clock advances while playing
+  _tick() {
+    if (this._tickT) return;
+    this._lastTick = Date.now();
+    const loop = () => {
+      const now = Date.now();
+      const dt = Math.min(100, Math.max(0, now - (this._lastTick || now)));
+      this._lastTick = now;
+      if (!this._paused && !this._scrubbing) this._runDue((this._vt || 0) + dt);
+      this._paintScrub();
+      this._tickT = setTimeout(loop, 16);
+    };
+    this._tickT = setTimeout(loop, 16);
+  }
+
+  // keep the scrubber in step without redrawing the phone
+  _paintScrub() {
+    const r = this.rootEl ? this.rootEl() : null;
+    if (!r || !this._total) return;
+    const pct = this.scrubPct();
+    const f = r.querySelector('[data-scrub-fill]');
+    const th = r.querySelector('[data-scrub-thumb]');
+    const tx = r.querySelector('[data-scrub-time]');
+    if (f) f.style.width = pct + '%';
+    if (th) th.style.left = pct + '%';
+    if (tx) tx.textContent = this.scrubLabel();
+  }
+
+  scrubPct() { return this._total ? Math.max(0, Math.min(100, ((this._vt || 0) / this._total) * 100)) : 0; }
+
+  fmtTime(ms) {
+    const sec = Math.max(0, Math.round(ms / 1000));
+    return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
+  }
+
+  scrubLabel() { return this.fmtTime(Math.min(this._vt || 0, this._total || 0)) + ' / ' + this.fmtTime(this._total || 0); }
+
+  // while jumping, collect state changes and draw once at the end
+  setState(u, cb) {
+    if (this._ff) {
+      const prev = this.state || {};
+      const patch = typeof u === 'function' ? u(prev) : u;
+      this.state = Object.assign({}, prev, patch);
+      return;
+    }
+    return super.setState(u, cb);
+  }
+
+  // jump to time T: forward runs the steps instantly, backward replays from the start
+  seekTo(T) {
+    const total = this._total || 0;
+    T = Math.max(0, Math.min(total, T));
+    const wasPaused = !!this._paused;
+    const before = this.state;
+    this._ff = true;
+    try {
+      if (T < (this._vt || 0)) {
+        this._q = [];
+        this._vt = 0;
+        this.play();
+      }
+      this._runDue(T);
+    } finally {
+      this._ff = false;
+    }
+    this._paused = wasPaused;
+    const next = Object.assign({}, this.state, { fingerOn: false, fingerDown: false, fingerDrag: false, paused: wasPaused, scrubbing: !!this._scrubbing });
+    this.state = before;
+    this._snapScroll = true;
+    super.setState(next);
+    this.follow();
+    this._paintScrub();
+  }
+
+  // learn how long the demo runs by playing it through instantly, without drawing
+  measureTotal() {
+    const before = this.state;
+    const keepQ = this._q;
+    const keepVt = this._vt;
+    const keepPaused = this._paused;
+    let total = 0;
+    this._ff = true;
+    try {
+      this._q = [];
+      this._vt = 0;
+      this.play();
+      let guard = 0;
+      while (this._q.length && !(this.state || {}).ended && guard++ < 50000) {
+        const r = this._q.shift();
+        this._vt = r.due;
+        r.fn();
+      }
+      total = this._vt;
+    } catch (err) {
+      total = 0;
+    } finally {
+      this._ff = false;
+    }
+    this._q = keepQ || [];
+    this._vt = keepVt || 0;
+    this._paused = keepPaused;
+    this.state = before;
+    this._total = total || 60000;
+  }
+
+  pauseDemo() {
+    if (this._paused) return;
+    this._paused = true;
+    this.setState({ paused: true });
+  }
+
+  resumeDemo() {
+    if (!this._paused) return;
+    this._paused = false;
+    this._lastTick = Date.now();
+    this.setState({ paused: false });
+    this.follow();
+  }
+
+  togglePause() { this.playToggle(); }
+
+  // play / pause; at the end it starts over
+  playToggle() {
+    const s = this.state || {};
+    if (s.ended || (this._vt || 0) >= (this._total || 0) - 30) {
+      this._paused = false;
+      this._lastTick = Date.now();
+      this.play();
+      return;
+    }
+    if (this._paused) this.resumeDemo();
+    else this.pauseDemo();
+  }
+
+  scrubFrac(e) {
+    const r = this.rootEl ? this.rootEl() : null;
+    const tr = r ? r.querySelector('[data-scrub-track]') : null;
+    if (!tr || !e) return null;
+    const b = tr.getBoundingClientRect();
+    return Math.max(0, Math.min(1, (e.clientX - b.left) / Math.max(1, b.width)));
+  }
+
+  // drag the track: the demo follows the thumb; let go and it carries on (or stays paused if it was)
+  scrubStart(e) {
+    if (e && e.stopPropagation) e.stopPropagation();
+    if (e && e.preventDefault) e.preventDefault();
+    const f = this.scrubFrac(e);
+    if (f == null) return;
+    this._wasPlaying = !this._paused;
+    this._scrubbing = true;
+    this._paused = true;
+    this.seekTo(f * (this._total || 0));
+    const move = (ev) => {
+      const g = this.scrubFrac(ev);
+      if (g == null) return;
+      this._scrubTo = g * (this._total || 0);
+      if (this._scrubRaf) return;
+      this._scrubRaf = requestAnimationFrame(() => {
+        this._scrubRaf = null;
+        if (this._scrubTo != null) this.seekTo(this._scrubTo);
+        this._scrubTo = null;
+      });
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
+      this._scrubFns = null;
+      this._scrubbing = false;
+      if (this._wasPlaying) {
+        this._paused = false;
+        this._lastTick = Date.now();
+        this.setState({ scrubbing: false, paused: false });
+        this.follow();
+      } else {
+        this.setState({ scrubbing: false });
+      }
+    };
+    this._scrubFns = { move: move, up: up };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
+  }
+
+  // ---------- DOM helpers ----------
+  rootEl() {
+    return this._root || document.querySelector('[data-root]');
+  }
+
+  q(sel) {
+    const r = this.rootEl();
+    return r ? r.querySelector(sel) : null;
+  }
+
+  scale() {
+    const r = this.rootEl();
+    if (!r) return 1;
+    const b = r.getBoundingClientRect();
+    return (b.width / (r.offsetWidth || 390)) || 1;
+  }
+
+  pointOf(el) {
+    const r = this.rootEl();
+    if (!r || !el) return null;
+    const rb = r.getBoundingClientRect();
+    const b = el.getBoundingClientRect();
+    const k = this.scale();
+    return { x: Math.round((b.left + b.width / 2 - rb.left) / k), y: Math.round((b.top + b.height / 2 - rb.top) / k) };
+  }
+
+  scrollTarget(sc) {
+    const s = this.state || {};
+    const y = sc.scrollTop;
+    if (s.scrollTo != null) { const want = typeof s.scrollTo === 'object' ? this.targetFor(s.scrollTo.sel, s.scrollTo.y) : s.scrollTo; if (want != null) return Math.max(0, Math.min(sc.scrollHeight - sc.clientHeight, want)); }
+    if (s.rewinding) return 0;
+    if (s.selS >= 0 || s.words === 0) return y;
+    const max = Math.max(0, sc.scrollHeight - sc.clientHeight);
+    if (s.replyAuto) return (s.savedPill || s.footOn) ? max : y;
+    const el = this.q('[data-w="' + (s.words - 1) + '"]');
+    if (!el) return y;
+    const k = this.scale();
+    const er = el.getBoundingClientRect();
+    const sr = sc.getBoundingClientRect();
+    const bottom = (er.bottom - sr.top) / k + y;
+    return Math.min(max, Math.max(y, bottom - sc.clientHeight + 56));
+  }
+
+  follow() {
+    this._idle = 0;
+    if (this._raf) return;
+    const step = () => {
+      const sc = this.q('[data-scroller]');
+      if (!sc) { this._raf = null; return; }
+      if (this._snapScroll) { this._snapScroll = false; this._glideReq = false; this._glide = null; this._lastTs = null; sc.scrollTop = this.scrollTarget(sc); }
+      if (this._paused || this._scrubbing) { this._raf = null; return; }
+      const tgt = this.scrollTarget(sc);
+      const y = sc.scrollTop;
+      const d = tgt - y;
+      if (Math.abs(d) <= 1) {
+        if (d) sc.scrollTop = tgt;
+        this._idle = (this._idle || 0) + 1;
+      } else {
+        sc.scrollTop = y + Math.sign(d) * Math.max(1, Math.abs(d) * 0.08);
+        this._idle = 0;
+      }
+      if (this._idle > 60) { this._raf = null; return; }
+      this._raf = requestAnimationFrame(step);
+    };
+    this._raf = requestAnimationFrame(step);
+  }
+
+  // top-right corner of the selection, in phone-screen coordinates
+  placeIcon() {
+    const s = this.state || {};
+    if (s.selS < 0) return;
+    const r = this.rootEl();
+    if (!r) return;
+    const rb = r.getBoundingClientRect();
+    const k = this.scale();
+    let top = Infinity;
+    let right = -Infinity;
+    let bottom = -Infinity;
+    r.querySelectorAll('[data-reply] [data-sel="1"]').forEach((el) => {
+      const b = el.getBoundingClientRect();
+      if (b.top < top) top = b.top;
+      if (b.right > right) right = b.right;
+      if (b.bottom > bottom) bottom = b.bottom;
+    });
+    if (top === Infinity) return;
+    const x = Math.round((right - rb.left) / k);
+    const y = Math.round((top - rb.top) / k);
+    const yb = Math.round((bottom - rb.top) / k);
+    const key = s.selS + '-' + s.selE;
+    if (s.iconFor === '') {
+      this.setState({ iconX: x, iconY: y, iconB: yb, iconFor: key, orbShown: false });
+      clearTimeout(this._orbT);
+      this._orbT = setTimeout(() => this.setState({ orbShown: true }), 40);
+    } else if (x !== s.iconX || y !== s.iconY || yb !== s.iconB || key !== s.iconFor) {
+      this.setState({ iconX: x, iconY: y, iconB: yb, iconFor: key });
+    }
+  }
+
+  measurePop() {
+    const s = this.state || {};
+    if (s.expanded) return;
+    const inner = this.q('[data-pop-inner]');
+    if (!inner) return;
+    // leave out the options row while it folds away, so the size is set once instead of shifting as it animates
+    const h = inner.offsetHeight;
+    if (h > 0 && h !== s.popH) this.setState({ popH: h });
+  }
+
+  // ---------- selection ----------
+  setSel(a, b, anchor) {
+    this.setState({ selS: a, selE: b, selA: anchor });
+  }
+
+  clearSel() {
+    this.setState({ selS: -1, selE: -1, selA: -1, iconFor: '', orbShown: false });
+  }
+
+  selectWord(i) {
+    this.setSel(i, i, i);
+  }
+
+  // word -> sentence -> paragraph -> + paragraph above (then the one above that...)
+  grow() {
+    const s = this.state || {};
+    if (s.selS < 0) return;
+    const m = this.model();
+    const cur = [s.selS, s.selE];
+    const a = (s.selA >= cur[0] && s.selA <= cur[1]) ? s.selA : cur[0];
+    const w = m.words[a];
+    const bigger = (c) => c[0] <= cur[0] && c[1] >= cur[1] && (c[0] !== cur[0] || c[1] !== cur[1]);
+    const cands = [[a, a], m.sents[w.s], m.paras[w.p]];
+    for (let i = 0; i < cands.length; i++) {
+      if (bigger(cands[i])) { this.setSel(cands[i][0], cands[i][1], a); return; }
+    }
+    const pa = m.words[cur[0]].p;
+    const pb = m.words[cur[1]].p;
+    const span = (x, y) => [m.paras[x][0], m.paras[y][1]];
+    let c = span(pa, pb);
+    if (bigger(c)) { this.setSel(c[0], c[1], a); return; }
+    if (pa > 0) c = span(pa - 1, pb);
+    else if (pb < m.paras.length - 1) c = span(pa, pb + 1);
+    else return;
+    this.setSel(c[0], c[1], a);
+  }
+
+  tapWord(i) {
+    const s = this.state || {};
+    // holding the sticky-note tool: the tapped word starts a side chat right there
+    if (s.toolOn && i >= 0) { this.startStickyAt(i); return; }
+    if (s.popOpen) {
+      if (s.expanded) return;
+      // tapping inside the selection still grows it (word -> sentence...), the window follows
+      if (i >= 0 && s.selS >= 0 && i >= s.selS && i <= s.selE) { this.grow(); return; }
+      this.closeSide(true);
+      return;
+    }
+    if (s.selS < 0) return;
+    if (i >= 0 && i >= s.selS && i <= s.selE) this.grow();
+    else this.clearSel();
+  }
+
+  // pick a word with the sticky-note tool: select it and open the window out of that spot
+  startStickyAt(i) {
+    const p = this.wordTopRight(i);
+    const key = this.memKeyFor(i, i);
+    const st = {
+      toolOn: false, selS: i, selE: i, selA: i, iconFor: i + '-' + i, orbShown: false, popOpen: false, expanded: false,
+      popMode: 'main', navDir: 'fwd', memKey: key,
+      miniThread: this.threadFor(i), miniCount: 0, miniRev: [0, 0, 0], miniTyping: -1, miniDone: false, miniInput: ''
+    };
+    if (p) { st.iconX = p.x; st.iconY = p.y; st.iconB = p.b; }
+    this.setState(st);
+    this.ui(40, () => this.setState({ orbShown: true, popOpen: true }));
+  }
+
+  // ---------- the star window ----------
+  // memory words open the "Used memory" window; anything else opens a plain side chat
+  openPop() {
+    const s = this.state || {};
+    const key = this.memKeyFor(s.selS, s.selE);
+    const thread = this.threadFor(s.selA >= 0 ? s.selA : s.selS);
+    const st = { popOpen: true, popMode: 'main', navDir: 'fwd', memKey: key };
+    if (thread !== s.miniThread) Object.assign(st, { miniThread: thread, miniCount: 0, miniRev: [0, 0, 0], miniTyping: -1, miniDone: false, miniInput: '' });
+    this.setState(st);
+  }
+
+  closeSide(clearAfter) {
+    this.setState({ popOpen: false, expanded: false, focus: '', kbUp: false });
+    this._untm(this._uiT);
+    this._uiT = this._tm(() => {
+      this.setState({ popMode: 'main', miniCount: 0, miniRev: [0, 0, 0], miniTyping: -1, miniDone: false, miniInput: '' });
+      if (clearAfter) this.clearSel();
+    }, 700);
+  }
+
+  // small UI timers that are not part of the autoplay (cleared on replay)
+  ui(ms, fn) {
+    if (!this._ui) this._ui = [];
+    this._ui.push(this._tm(fn, ms));
+  }
+
+  clearUi() {
+    (this._ui || []).forEach((id) => this._untm(id));
+    this._ui = [];
+  }
+
+  seattleIdx() {
+    return this.model().words.findIndex((w) => w.t.indexOf('Seattle') === 0);
+  }
+
+  // top-right corner of a reply word, in phone-screen coordinates
+  wordTopRight(i) {
+    const r = this.rootEl();
+    const el = this.q('[data-w="' + i + '"]');
+    if (!r || !el) return null;
+    const rb = r.getBoundingClientRect();
+    const b = el.getBoundingClientRect();
+    const k = this.scale();
+    return { x: Math.round((b.right - rb.left) / k), y: Math.round((b.top - rb.top) / k), b: Math.round((b.bottom - rb.top) / k) };
+  }
+
+  // closing a side chat that has questions in it: the window tucks back into the text and leaves a faint sticky note on "Seattle"
+  closeToNote() {
+    const p = this.wordTopRight(this.seattleIdx());
+    this.setState(Object.assign({ popOpen: false, expanded: false, focus: '', kbUp: false }, p ? { iconX: p.x, iconY: p.y, iconB: p.b } : {}));
+    this.ui(750, () => this.setState({ selS: -1, selE: -1, selA: -1, iconFor: '', orbShown: false, noteOn: true }));
+  }
+
+  // tapping the sticky note: the side chat opens again out of it, as it was left
+  reopenFromNote() {
+    const p = this.wordTopRight(this.seattleIdx());
+    this.setState(Object.assign({ orbShown: false, iconFor: '' }, p ? { iconX: p.x, iconY: p.y, iconB: p.b } : {}));
+    this.ui(40, () => this.setState({ popOpen: true, expanded: true, popMode: 'main', navDir: 'fwd', noteOn: false }));
+  }
+
+  // continue in a new chat: the side chat grows to fill the screen and settles into a new conversation
+  startNewChat() {
+    this.setState({ ncGrow: true, focus: '', kbUp: false });
+    this.ui(380, () => this.setState({ ncOn: true }));
+    this.ui(1150, () => this.setState({
+      popOpen: false, expanded: false, ncGrow: false, selS: -1, selE: -1, selA: -1, iconFor: '', orbShown: false, noteOn: true, seattleMoved: true,
+      popMode: 'main', miniCount: 0, miniRev: [0, 0, 0], miniTyping: -1, miniDone: false, miniInput: ''
+    }));
+  }
+
+  pickOpt(kind) {
+    const s = this.state || {};
+    if (kind === 'edit') { this.setState({ popMode: 'edit', navDir: 'fwd', memText: this.memTextOf(s.memId) }); return; }
+    this.applyOpt(kind);
+  }
+
+  // ask a quick question: dots, then a short answer that settles in word by word
+  askMini(i) {
+    const qa = this.qa()[i];
+    this.setState({ miniInput: '', popMode: 'main', miniCount: i + 1, miniTyping: i, miniSendDown: false });
+    const n = qa.a.split(' ').length;
+    this.at(1000, () => this.setState({ miniTyping: -1 }));
+    for (let w = 1; w <= n; w++) {
+      this.at(1000 + w * 55, () => {
+        const r = ((this.state || {}).miniRev || [0, 0, 0]).slice();
+        r[i] = w;
+        this.setState({ miniRev: r });
+      });
+    }
+    if (i === 2) this.at(1000 + n * 55 + 700, () => this.setState({ miniDone: true }));
+  }
+
+  miniDur(i, thread) {
+    const list = thread ? this.qaFor(thread) : this.qa();
+    return 1000 + list[i].a.split(' ').length * 55 + 700;
+  }
+
+  // Touching the reply mid-demo jumps to the finished chat and hands over control
+  stopDemo() {
+    if (!this._t || !this._t.length) return;
+    this.clear();
+    const s = this.state || {};
+    const total = this.stepList().length;
+    this.setState({
+      fingerOn: false, fingerDown: false, focus: '', kbUp: false, typed: '', inputFade: false, activeKey: '', shift: false, bsDown: false,
+      sendDown: false, sent: true, sentText: this.message(), bubbleUp: true,
+      thinking: true, stepsDone: total, collapsed: true,
+      words: this.model().words.length, replyAuto: true, tray: 'closed', yesDown: false,
+      savedPill: s.consent !== false, ended: true,
+      popOpen: false, expanded: false, popMode: 'main', miniCount: 0, miniRev: [0, 0, 0], miniTyping: -1, miniDone: false, miniInput: '',
+      noteOn: false, ncOn: false, ncGrow: false, toolOn: false, miniThread: 'seattle', seattleMoved: false,
+      memKey: '', memId: '', memCur: {}, memLog: {}, memState: {}, clock: 0
+    });
+  }
+
+  // ---------- pointer input ----------
+  onDown(e) {
+    const tgt = e.target;
+    if (!tgt || !tgt.closest) return;
+    if (e.pointerType && e.pointerType !== 'mouse') { clearTimeout(this._peekT); if (!(this.state || {}).scrubPeek) this.setState({ scrubPeek: true }); this._peekT = setTimeout(() => this.setState({ scrubPeek: false }), 3200); } /* touch screens have no hover: a tap brings up the playback bar for a few seconds */
+    if (tgt.closest('[data-pause]')) return;
+    if (this._paused && tgt.closest('button,[data-w],[data-handle]')) this.resumeDemo();
+    if (tgt.closest('[data-pop]') || tgt.closest('[data-note]') || tgt.closest('[data-nc]')) return;
+    const h = tgt.closest('[data-handle]');
+    if (h) {
+      this.stopDemo();
+      this._drag = h.getAttribute('data-handle');
+      this.setState({ dragging: true });
+      try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+      if (e.preventDefault) e.preventDefault();
+      return;
+    }
+    const wEl = tgt.closest('[data-w]');
+    const idx = wEl ? Number(wEl.getAttribute('data-w')) : -1;
+    if (idx >= 0) this.stopDemo();
+    const press = { idx: idx, x: e.clientX, y: e.clientY, fired: false, moved: false, timer: null };
+    if (idx >= 0) {
+      press.timer = setTimeout(() => {
+        press.fired = true;
+        press.timer = null;
+        const s = this.state || {};
+        if (s.toolOn) { this.startStickyAt(idx); return; }
+        if (s.popOpen) this.closeSide(false);
+        this.selectWord(idx);
+      }, 450);
+    }
+    this._press = press;
+  }
+
+  onMove(e) {
+    if (this._drag) {
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const wEl = el && el.closest ? el.closest('[data-w]') : null;
+      if (!wEl) return;
+      const i = Number(wEl.getAttribute('data-w'));
+      const s = this.state || {};
+      if (this._drag === 'start') {
+        if (i <= s.selE && i !== s.selS) this.setState({ selS: i });
+      } else {
+        if (i >= s.selS && i !== s.selE) this.setState({ selE: i });
+      }
+      return;
+    }
+    const p = this._press;
+    if (p && !p.fired && !p.moved && Math.hypot(e.clientX - p.x, e.clientY - p.y) > 10) {
+      if (p.timer) clearTimeout(p.timer);
+      p.timer = null;
+      p.moved = true;
+    }
+  }
+
+  onUp() {
+    if (this._drag) {
+      this._drag = null;
+      this.setState({ dragging: false });
+      return;
+    }
+    const p = this._press;
+    this._press = null;
+    if (!p) return;
+    if (p.timer) clearTimeout(p.timer);
+    if (p.fired || p.moved) return;
+    this.tapWord(p.idx);
+  }
+
+  onCancel() {
+    if (this._press && this._press.timer) clearTimeout(this._press.timer);
+    this._press = null;
+    if (this._drag) {
+      this._drag = null;
+      this.setState({ dragging: false });
+    }
+  }
+
+  // ---------- autoplay ----------
+  clear() {
+    (this._t || []).forEach((id) => this._untm(id));
+    this._t = [];
+  }
+
+  at(ms, fn) {
+    const sp = Math.max(0.25, Number(this.props.speed) || 1);
+    this._t.push(this._tm(fn, ms / sp));
+  }
+
+  // finger enters from below-right, glides to the point, presses, lifts, fades
+  tapAt(t, x, y, onDown, onUp) {
+    this.at(t, () => this.setState({ fingerX: x + 40, fingerY: y + 90 }));
+    this.at(t + 60, () => this.setState({ fingerOn: true }));
+    this.at(t + 200, () => this.setState({ fingerX: x, fingerY: y }));
+    this.at(t + 950, () => this.setState(Object.assign({ fingerDown: true }, onDown || {})));
+    this.at(t + 1120, () => {
+      if (typeof onUp === 'function') {
+        this.setState({ fingerDown: false });
+        onUp();
+      } else {
+        this.setState(Object.assign({ fingerDown: false }, onUp || {}));
+      }
+    });
+    this.at(t + 1450, () => this.setState({ fingerOn: false }));
+  }
+
+  // tap whatever element matches `sel`, measured live; optionally the finger is already on screen
+  tapSel(t, sel, onDown, onUp, opts) {
+    const o = opts || {};
+    const enter = o.enter !== false;
+    const leave = o.leave !== false;
+    const where = () => this.pointOf(this.q(sel)) || { x: 200, y: 500 };
+    let k = t;
+    if (enter) {
+      this.at(k, () => { const p = where(); this.setState({ fingerX: p.x + 40, fingerY: p.y + 90 }); });
+      this.at(k + 60, () => this.setState({ fingerOn: true }));
+      k += 200;
+    }
+    this.at(k, () => { const p = where(); this.setState({ fingerX: p.x, fingerY: p.y }); });
+    this.at(k + 760, () => this.setState(Object.assign({ fingerDown: true }, onDown || {})));
+    this.at(k + 930, () => { this.setState({ fingerDown: false }); if (onUp) onUp(); });
+    if (leave) this.at(k + 1240, () => this.setState({ fingerOn: false }));
+    return k + 930;
+  }
+
+  longPress(t, sel, onHold) {
+    const where = () => this.pointOf(this.q(sel)) || { x: 200, y: 450 };
+    this.at(t, () => { const p = where(); this.setState({ fingerX: p.x + 40, fingerY: p.y + 90 }); });
+    this.at(t + 60, () => this.setState({ fingerOn: true }));
+    this.at(t + 200, () => { const p = where(); this.setState({ fingerX: p.x, fingerY: p.y }); });
+    this.at(t + 950, () => this.setState({ fingerDown: true }));
+    this.at(t + 1450, onHold);
+    this.at(t + 1750, () => this.setState({ fingerDown: false }));
+    return t + 1750;
+  }
+
+  typeInto(t, field, text) {
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      const isSpace = ch === ' ';
+      const lower = ch.toLowerCase();
+      const upper = ch !== lower;
+      this.at(t, () => this.setState({ [field]: text.slice(0, i + 1), activeKey: isSpace ? 'space' : lower, shift: upper }));
+      this.at(t + 90, () => this.setState({ activeKey: '', shift: false }));
+      t += isSpace ? 125 : 66 + ((i * 37) % 48);
+    }
+    return t;
+  }
+
+  eraseInto(t, field, text) {
+    this.at(t, () => this.setState({ bsDown: true }));
+    t += 260;
+    for (let i = text.length - 1; i >= 0; i--) {
+      this.at(t, () => this.setState({ [field]: text.slice(0, i) }));
+      t += 22;
+    }
+    this.at(t, () => this.setState({ bsDown: false }));
+    return t + 60;
+  }
+
+  // send: the typed text fades from the bar, the keyboard sinks, the question floats up to the top
+  send(msg) {
+    this.setState({ sendDown: false, inputFade: true });
+    this.at(220, () => this.setState({ sent: true, sentText: msg, typed: '', inputFade: false, focus: '', kbUp: false, bubbleUp: false }));
+    this.at(290, () => this.setState({ bubbleUp: true }));
+  }
+
+  play() {
+    this.clear();
+    this._untm(this._uiT);
+    this.clearUi();
+    this._press = null;
+    this._drag = null;
+    this._paused = false;
+    this._q = [];
+    this._vt = 0;
+    this._epoch = (this._epoch || 0) + 1;
+    document.documentElement.setAttribute('data-dreset', ''); clearTimeout(this._drT); this.setState(Object.assign(this.base(), { paused: false }), () => { this._drT = setTimeout(() => document.documentElement.removeAttribute('data-dreset'), 80); }); /* starting over jumps straight to the first frame, so the last screen never fades through the first one */
+    // the question and the reply are already on screen
+    const m = this.model();
+    const total = this.stepList().length;
+    this.setState({
+      sent: true, sentText: this.message(), bubbleUp: true, typed: '', focus: '', kbUp: false,
+      thinking: true, stepsDone: total, collapsed: true,
+      consent: true, tray: 'closed', words: m.words.length, replyAuto: true, savedPill: false,
+      footOn: true, saveDone: true, bookOn: true, savedVisible: true,
+      picks: { s1: false, s2: true, n1: true, n2: true }, saved: ['s2', 'n1', 'n2'],
+      scrollTo: 0
+    });
+    this.demoFix(1600);
+  }
+
+  // where the chat should sit so `sel` lands about `yView` px below the top of the chat (measured live)
+  targetFor(sel, yView) {
+    const sc = this.q('[data-scroller]');
+    const el = this.q(sel);
+    if (!sc || !el) return null;
+    const k = this.scale();
+    const top = (el.getBoundingClientRect().top - sc.getBoundingClientRect().top) / k + sc.scrollTop;
+    return Math.max(0, Math.round(top - yView));
+  }
+
+  // a finger swipes up and the chat glides so `sel` sits about `yView` px below the top of the chat
+  swipeTo(t, sel, yView) {
+    this.at(t, () => this.setState({ fingerX: 250, fingerY: 730 }));
+    this.at(t + 60, () => this.setState({ fingerOn: true }));
+    this.at(t + 200, () => this.setState({ fingerX: 212, fingerY: 640 }));
+    this.at(t + 900, () => this.setState({ fingerDown: true }));
+    this.at(t + 1000, () => this.setState({ fingerX: 216, fingerY: 430, scrollTo: { sel: sel, y: yView } }));
+    this.at(t + 1700, () => this.setState({ fingerDown: false }));
+    this.at(t + 1950, () => this.setState({ fingerOn: false }));
+    return t + 1950;
+  }
+
+  usedIds() { return ['ex', 'months', 'moved', 'fav', 'insta']; }
+
+  usedRows() {
+    const s = this.state || {};
+    const cur = s.memCur || {};
+    const mst = s.memState || {};
+    const names = { outdated: 'Outdated', irrelevant: 'Not used here', forget: 'Forgotten', hide: 'Won’t mention' };
+    return this.usedIds().map((id) => {
+      const off = !!mst[id];
+      const edited = !off && !!cur[id];
+      return {
+        key: id, text: this.memTextOf(id).replace(/\.$/, ''),
+        color: off ? '#87867F' : '#141413', deco: off ? 'line-through' : 'none',
+        hasTag: off || edited, tag: off ? (names[mst[id]] || 'Changed') : 'Edited',
+        tagBg: off ? '#E8E6DC' : 'rgba(217,119,87,0.14)', tagColor: off ? '#5E5D59' : '#9A4A30'
+      };
+    });
+  }
+
+  demoFix(t) {
+    const m = this.model();
+    const defs = this.memDefs();
+
+    // --- 1. "6 months" was remembered wrong: one memory, edit it to 4 ---
+    const six = m.words.findIndex((w) => w.t === '6');
+    t = this.longPress(t, '[data-w="' + six + '"]', () => this.selectWord(six));
+    t += 700;
+    t = this.tapSel(t, '[data-orb-btn]', null, () => this.openPop(), { enter: false, leave: false });
+    t += 1000;
+    t = this.tapSel(t, '[data-manage]', null, () => this.openManage(), { enter: false, leave: false });
+    t += 1000;
+    t = this.tapSel(t, '[data-opt="edit"]', null, () => this.setState({ popMode: 'edit', navDir: 'fwd', memText: defs.months.text }), { enter: false, leave: false });
+    t += 900;
+    t = this.tapSel(t, '[data-mem-field]', null, () => this.setState({ focus: 'mem', kbUp: true }), { enter: false, leave: true });
+    t += 700;
+    t = this.eraseInto(t, 'memText', defs.months.text);
+    t += 200;
+    t = this.typeInto(t, 'memText', defs.months.typed);
+    t += 400;
+    // Save: the AI says it understood; "6" is struck and "4" settles in beside it
+    t = this.tapSel(t, '[data-mem-save]', null, () => this.saveMem(), { enter: true, leave: true });
+    t += 2800;
+    this.tapAt(t, 195, 78, null, () => this.closeSide(true));
+    t += 1120 + 1300;
+
+    // --- 2. the Seattle sentence leaned on two memories: pick "Nick moved to Seattle", edit it to Nate ---
+    let sea = this.seattleIdx();
+    if (sea < 0) sea = m.paras[1][0];
+    const WS = '[data-w="' + sea + '"]';
+    t = this.longPress(t, WS, () => this.selectWord(sea));
+    t += 700;
+    // press again: the whole sentence
+    t = this.tapSel(t, WS, null, () => this.grow(), { enter: false, leave: false });
+    t += 900;
+    t = this.tapSel(t, '[data-orb-btn]', null, () => this.openPop(), { enter: false, leave: false });
+    t += 1000;
+    t = this.tapSel(t, '[data-manage]', null, () => this.openManage(), { enter: false, leave: false });
+    t += 1300;
+    t = this.tapSel(t, '[data-mem="moved"]', null, () => this.openMem('moved'), { enter: false, leave: false });
+    t += 1000;
+    t = this.tapSel(t, '[data-opt="edit"]', null, () => this.setState({ popMode: 'edit', navDir: 'fwd', memText: defs.moved.text }), { enter: false, leave: false });
+    t += 900;
+    t = this.tapSel(t, '[data-mem-field]', null, () => this.setState({ focus: 'mem', kbUp: true }), { enter: false, leave: true });
+    t += 700;
+    t = this.eraseInto(t, 'memText', defs.moved.text);
+    t += 200;
+    t = this.typeInto(t, 'memText', defs.moved.typed);
+    t += 400;
+    // Save: stored as "Nate, your elder sister's boyfriend, moved to Seattle"; "Nick" struck, "Nate" beside it
+    t = this.tapSel(t, '[data-mem-save]', null, () => this.saveMem(), { enter: true, leave: true });
+    t += 3000;
+    this.tapAt(t, 195, 78, null, () => this.closeSide(true));
+    t += 1120 + 1300;
+
+    // --- 3. a line built on something that isn't true anymore: mark it outdated ---
+    let ig = m.words.findIndex((w) => w.t.indexOf('Instagram') === 0);
+    if (ig < 0) ig = m.paras[2][0];
+    const WI = '[data-w="' + ig + '"]';
+    t = this.swipeTo(t, WI, 230);
+    t += 600;
+    t = this.longPress(t, WI, () => this.selectWord(ig));
+    t += 700;
+    t = this.tapSel(t, WI, null, () => this.grow(), { enter: false, leave: false });
+    t += 900;
+    t = this.tapSel(t, '[data-orb-btn]', null, () => this.openPop(), { enter: false, leave: false });
+    t += 1000;
+    t = this.tapSel(t, '[data-manage]', null, () => this.openManage(), { enter: false, leave: false });
+    t += 1100;
+    t = this.tapSel(t, '[data-opt="outdated"]', null, () => this.pickOpt('outdated'), { enter: false, leave: true });
+    t += 3200;
+    this.tapAt(t, 195, 78, null, () => this.closeSide(true));
+    t += 1120 + 1200;
+
+    // --- 4. the notebook under the reply now shows what changed ---
+    t = this.swipeTo(t, '[data-book]', 430);
+    t += 600;
+    t = this.tapSel(t, '[data-book]', null, () => this.setState({ sheet: 'book' }), { enter: true, leave: true });
+    t += 4800;
+
+    this.at(t, () => this.setState({ ended: true }));
+    if (this.props.loop !== false) this.at(t + 5000, () => this.play());
+  }
+
+  afterAsk(yes) {
+    const m = this.modelFor(yes);
+    const total = this.stepList().length;
+    this.setState({ yesDown: false, tray: 'leaving', consent: yes, stepsDone: total - 2 });
+    this.at(500, () => this.setState({ tray: 'closed' }));
+    this.at(1500, () => this.setState({ stepsDone: total - 1 }));
+    let t = 3000;
+
+    this.at(t, () => this.setState({ stepsDone: total, collapsed: true }));
+    t += 650;
+
+    // reply surfaces word by word, with small breaths at punctuation
+    const n = m.words.length;
+    let acc = t;
+    for (let w = 1; w <= n; w++) {
+      this.at(acc, () => this.setState({ words: w }));
+      const word = m.words[w - 1];
+      const next = m.words[w];
+      let d = 16 + ((w * 29) % 12);
+      if (/[.?!]$/.test(word.t)) d += 75;
+      else if (/[,;:]$/.test(word.t)) d += 30;
+      if (next && next.p !== word.p) d += 60;
+      acc += d;
+    }
+    t = acc + 1200;
+    this.at(t, () => this.setState({ replyAuto: true }));
+    this.demoSave(t + 300);
+  }
+
+  // ---------- Demo 1: saving from this reply ----------
+  candidates() {
+    const n = this.personName();
+    return {
+      sens: [
+        { id: 's1', text: 'Your relationship with ' + n + ' was abusive' },
+        { id: 's2', text: 'You still miss ' + n }
+      ],
+      norm: (this.state || {}).consent === false ? [] : [
+        { id: 'n1', text: 'You’re working through the breakup' },
+        { id: 'n2', text: 'You want to understand why you still miss him' }
+      ],
+      used: (this.state || {}).consent === false ? [] : this.usedIds().map((id) => this.memTextOf(id).replace(/\.$/, ''))
+    };
+  }
+
+  togglePick(id) {
+    const s = this.state || {};
+    const picks = Object.assign({}, s.picks);
+    picks[id] = !picks[id];
+    this.setState({ picks: picks });
+  }
+
+  selectAll() {
+    const s = this.state || {};
+    const c = this.candidates();
+    const ids = c.sens.concat(c.norm).map((it) => it.id);
+    const all = ids.every((id) => (s.picks || {})[id]);
+    const picks = {};
+    ids.forEach((id) => { picks[id] = !all; });
+    this.setState({ picks: picks });
+  }
+
+  confirmSave() {
+    const s = this.state || {};
+    const c = this.candidates();
+    const saved = c.sens.concat(c.norm).map((it) => it.id).filter((id) => (s.picks || {})[id]);
+    this.setState({ sheet: '', saved: saved, saveDone: true });
+    // once the sheet is down, the count goes up and glows for a moment, then settles back to grey
+    this.ui(450, () => this.setState({ bookOn: true, savedVisible: true, bookGlow: true }));
+    this.ui(1650, () => this.setState({ bookGlow: false }));
+  }
+
+  demoSave(t) {
+    // the footer settles in under the reply: actions and one quiet save line;
+    // the notebook comes in with the other actions when this reply used memory
+    this.at(t, () => this.setState({ footOn: true }));
+    if (this.candidates().used.length) this.at(t, () => this.setState({ bookOn: true }));
+    t += 2600;
+    if ((this.state || {}).consent !== false) {
+      // open the checklist: sensitive things on top, unticked; the rest ticked
+      t = this.tapSel(t, '[data-save-line]', null, () => this.setState({ sheet: 'save' }), { enter: true, leave: false });
+      t += 1700;
+      // she chooses to keep one sensitive thing
+      t = this.tapSel(t, '[data-pick="s2"]', null, () => this.togglePick('s2'), { enter: false, leave: false });
+      t += 1200;
+      t = this.tapSel(t, '[data-save-confirm]', null, () => this.confirmSave(), { enter: false, leave: true });
+      t += 2700; // let the new count glow and settle before the finger comes back
+      // the notebook in the reply's actions: what this reply used, and what it saved
+      t = this.tapSel(t, '[data-book]', null, () => this.setState({ sheet: 'book' }), { enter: true, leave: true });
+      t += 3600;
+      this.at(t, () => this.setState({ sheet: '' }));
+      t += 900;
+      this.rewindToAsk(t);
+      return;
+    }
+    t += 2800;
+    this.at(t, () => this.setState({ ended: true }));
+    if (this.props.loop !== false) this.at(t + 5000, () => this.play());
+  }
+
+  // run the moment back to the ask: the reply drains away, the thinking line returns, the card comes back
+  rewindToAsk(t) {
+    const n = (this.state || {}).words || this.model().words.length;
+    this.at(t, () => this.setState({ rewindHint: true, rewinding: true, titleKeep: true, footOn: false, bookOn: false, replyAuto: false }));
+    t += 500;
+    const steps = 22;
+    for (let k = 1; k <= steps; k++) {
+      this.at(t + k * 45, () => this.setState({ words: Math.round(n * (1 - k / steps)) }));
+    }
+    t += steps * 45 + 350;
+    this.at(t, () => this.setState({
+      rewinding: false, consent: null, stepsDone: 2, collapsed: false,
+      sheet: '', picks: { s1: false, s2: false, n1: true, n2: true }, saved: [], saveDone: false, savedVisible: false, bookGlow: false
+    }));
+    t += 900;
+    this.at(t, () => this.setState({ tray: 'ask' }));
+    t += 1700;
+    this.tapAt(t, 111, 720, null, () => { this.setState({ rewindHint: false }); this.afterAsk(false); });
+  }
+
+  demoSeattle(t) {
+    const m = this.model();
+    let seattle = m.words.findIndex((w) => w.t.indexOf('Seattle') === 0);
+    if (seattle < 0) seattle = m.paras[1][0];
+    const W = '[data-w="' + seattle + '"]';
+    const qa = this.qa();
+    const defs = this.memDefs();
+
+    // --- Part 0: a quick word-level fix: "6 months" was remembered wrong ---
+    const six = m.words.findIndex((w) => w.t === '6');
+    if (six >= 0) {
+      const W6 = '[data-w="' + six + '"]';
+      // long-press "6": a memory icon appears (this came from memory)
+      t = this.longPress(t, W6, () => this.selectWord(six));
+      t += 1000;
+      // the window opens on the side chat; memory waits behind "Manage memory"
+      t = this.tapSel(t, '[data-orb-btn]', null, () => this.openPop(), { enter: false, leave: false });
+      t += 1400;
+      // just one memory here, so it goes straight to its options
+      t = this.tapSel(t, '[data-manage]', null, () => this.openManage(), { enter: false, leave: false });
+      t += 1300;
+      t = this.tapSel(t, '[data-opt="edit"]', null, () => this.setState({ popMode: 'edit', navDir: 'fwd', memText: defs.months.text }), { enter: false, leave: false });
+      t += 1200;
+      t = this.tapSel(t, '[data-mem-field]', null, () => this.setState({ focus: 'mem', kbUp: true }), { enter: false, leave: true });
+      t += 1000;
+      t = this.eraseInto(t, 'memText', defs.months.text);
+      t += 250;
+      t = this.typeInto(t, 'memText', defs.months.typed);
+      t += 500;
+      // Save: the AI says it understood; "6" is struck in the reply and "4" settles in beside it
+      t = this.tapSel(t, '[data-mem-save]', null, () => this.saveMem(), { enter: true, leave: true });
+      t += 3200;
+      // tap away: the window folds back
+      this.tapAt(t, 195, 78, null, () => this.closeSide(true));
+      t += 1120 + 2000;
+    }
+
+    // --- Part 1: the memories behind the Seattle sentence ---
+    t = this.longPress(t, W, () => this.selectWord(seattle));
+    t += 1000;
+    // press again: the whole sentence
+    t = this.tapSel(t, W, null, () => this.grow(), { enter: false, leave: false });
+    t += 1100;
+    t = this.tapSel(t, '[data-orb-btn]', null, () => this.openPop(), { enter: false, leave: false });
+    t += 1400;
+    // Manage memory: this sentence leaned on two memories
+    t = this.tapSel(t, '[data-manage]', null, () => this.openManage(), { enter: false, leave: false });
+    t += 1400;
+    // "Nick moved to Seattle" -> options -> Edit
+    t = this.tapSel(t, '[data-mem="moved"]', null, () => this.openMem('moved'), { enter: false, leave: false });
+    t += 1300;
+    t = this.tapSel(t, '[data-opt="edit"]', null, () => this.setState({ popMode: 'edit', navDir: 'fwd', memText: defs.moved.text }), { enter: false, leave: false });
+    t += 1200;
+    t = this.tapSel(t, '[data-mem-field]', null, () => this.setState({ focus: 'mem', kbUp: true }), { enter: false, leave: true });
+    t += 1000;
+    t = this.eraseInto(t, 'memText', defs.moved.text);
+    t += 250;
+    t = this.typeInto(t, 'memText', defs.moved.typed);
+    t += 500;
+    // Save: stored cleanly as "Nate, your elder sister's boyfriend, moved to Seattle"; "Nick" -> "Nate" in the reply
+    t = this.tapSel(t, '[data-mem-save]', null, () => this.saveMem(), { enter: true, leave: true });
+    t += 3200;
+    // back to the list, and that memory again: now it's outdated
+    t = this.tapSel(t, '[data-pop-back]', null, () => this.goBack(), { enter: true, leave: false });
+    t += 1300;
+    t = this.tapSel(t, '[data-mem="moved"]', null, () => this.openMem('moved'), { enter: false, leave: false });
+    t += 1400;
+    t = this.tapSel(t, '[data-opt="outdated"]', null, () => this.pickOpt('outdated'), { enter: false, leave: false });
+    t += 3400;
+
+    // --- Part 2: back twice, then quick side questions in the same window ---
+    t = this.tapSel(t, '[data-pop-back]', null, () => this.goBack(), { enter: false, leave: false });
+    t += 1100;
+    t = this.tapSel(t, '[data-pop-back]', null, () => this.goBack(), { enter: false, leave: false });
+    t += 1200;
+    t = this.tapSel(t, '[data-mini-field]', null, () => this.setState({ focus: 'mini', kbUp: true }), { enter: false, leave: true });
+    t += 1000;
+
+    // Q1
+    t = this.typeInto(t, 'miniInput', qa[0].q);
+    t += 400;
+    t = this.tapSel(t, '[data-mini-send]', { miniSendDown: true }, () => this.askMini(0), { enter: true, leave: true });
+    t += this.miniDur(0) + 700;
+
+    // Q2
+    t = this.typeInto(t, 'miniInput', qa[1].q);
+    t += 400;
+    t = this.tapSel(t, '[data-mini-send]', { miniSendDown: true }, () => this.askMini(1), { enter: true, leave: true });
+    t += this.miniDur(1) + 900;
+
+    // expand: the little window grows over the chat; the main input bar now talks to it
+    t = this.tapSel(t, '[data-pop-expand]', null, () => this.setState({ expanded: true, focus: '', kbUp: false }), { enter: true, leave: true });
+    t += 1900;
+
+    // Q3 through the main input bar
+    t = this.tapSel(t, '[data-main-field]', null, () => this.setState({ focus: 'main', kbUp: true }), { enter: true, leave: true });
+    t += 1000;
+    t = this.typeInto(t, 'typed', qa[2].q);
+    t += 400;
+    t = this.tapSel(t, '[data-main-send]', { sendDown: true }, () => {
+      this.setState({ sendDown: false, typed: '', focus: '', kbUp: false });
+      this.askMini(2);
+    }, { enter: true, leave: true });
+    t += this.miniDur(2) + 1500;
+
+    // --- Part 3: close it, come back to it, carry it on ---
+    // close: the side chat tucks into a faint sticky note beside "Seattle"
+    t = this.tapSel(t, '[data-pop-close]', null, () => this.closeToNote(), { enter: true, leave: true });
+    t += 2800;
+    // tap the note: it opens again where it was left
+    t = this.tapSel(t, '[data-note]', null, () => this.reopenFromNote(), { enter: true, leave: true });
+    t += 2400;
+    // continue in a new chat
+    t = this.tapSel(t, '[data-choice-new]', null, () => this.startNewChat(), { enter: true, leave: true });
+    t += 4800;
+
+    // --- Part 4: back to the main chat, and the sticky-note tool ---
+    t = this.tapSel(t, '[data-back-main]', null, () => this.setState({ ncOn: false }), { enter: true, leave: true });
+    t += 2000;
+    // pick up the sticky note from the top bar, like a dropper
+    t = this.tapSel(t, '[data-sticky-tool]', null, () => this.setState({ toolOn: true }), { enter: true, leave: false });
+    t += 1500;
+    // tap "Nick": the word is picked and the same window opens right there
+    let nick = m.words.findIndex((w) => w.p === 0 && w.t.indexOf(this.personName()) === 0);
+    if (nick < 0) nick = 0;
+    t = this.tapSel(t, '[data-w="' + nick + '"]', null, () => this.startStickyAt(nick), { enter: false, leave: false });
+    t += 1600;
+    t = this.tapSel(t, '[data-mini-field]', null, () => this.setState({ focus: 'mini', kbUp: true }), { enter: false, leave: true });
+    t += 1000;
+    const nq = this.qaFor('nick')[0].q;
+    t = this.typeInto(t, 'miniInput', nq);
+    t += 400;
+    t = this.tapSel(t, '[data-mini-send]', { miniSendDown: true }, () => this.askMini(0), { enter: true, leave: true });
+    t += this.miniDur(0, 'nick') + 2000;
+
+    this.at(t, () => this.setState({ ended: true }));
+    if (this.props.loop !== false) {
+      this.at(t + 6000, () => this.play());
+    }
+  }
+
+  // ---------- render ----------
+  renderVals() {
+    const s = Object.assign(this.base(), this.state || {});
+    const touches = this.props.showTouches !== false;
+    const HL = 'rgba(217,119,87,0.26)';
+    const NOHL = 'rgba(217,119,87,0)';
+    const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+    const composerBottom = s.kbUp ? 299 : 34;
+    const maxBottom = 844 - composerBottom - 56 - 10;
+    // ---------- Demo 1: save checklist and the reply's memories ----------
+    const cand = this.candidates();
+    const picks = s.picks || {};
+    const candIds = cand.sens.concat(cand.norm).map((it) => it.id);
+    const pickedN = candIds.filter((id) => picks[id]).length;
+    const allOn = pickedN === candIds.length;
+    const pickRow = (it) => ({
+      key: it.id, id: it.id, text: it.text,
+      boxBorder: picks[it.id] ? '#141413' : '#B0AEA5', boxBg: picks[it.id] ? '#141413' : '#FFFFFF', checkOp: picks[it.id] ? 1 : 0,
+      border: picks[it.id] ? 'rgba(31,30,29,0.22)' : 'rgba(31,30,29,0.1)', bg: picks[it.id] ? '#FFFFFF' : '#F5F4ED',
+      toggle: () => { this.clear(); this.setState({ fingerOn: false, ended: true }); this.togglePick(it.id); }
+    });
+    const byId = {};
+    cand.sens.concat(cand.norm).forEach((it) => { byId[it.id] = it; });
+    const savedRows = (s.saved || []).map((id) => ({
+      key: id, text: byId[id].text, hasTag: id.charAt(0) === 's', tag: 'Sensitive', tagBg: 'rgba(217,119,87,0.14)', tagColor: '#9A4A30'
+    }));
+    const bookCount = cand.used.length + (s.savedVisible ? savedRows.length : 0);
+
+    const key = (c) => ({ label: c, active: s.activeKey === c, bg: s.activeKey === c ? '#C2C0B6' : '#FFFFFF' });
+
+    // thinking: three slots rotate (current resting, previous drifted up, next waiting below)
+    const all = this.stepList();
+    const thinkDone = s.stepsDone >= all.length;
+    const kk = Math.min(s.stepsDone, all.length - 1);
+    const textAt = (i) => (i >= 0 && i < all.length ? all[i].label : '');
+    const slot = (j) => {
+      const role = ((j - kk) % 3 + 3) % 3;
+      if (role === 0) return { text: textAt(kk), op: 1, y: 0, tr: 'opacity 700ms ease 180ms, transform 950ms cubic-bezier(.22,1,.36,1) 180ms', hidden: 'false' };
+      if (role === 2) return { text: textAt(kk - 1), op: 0, y: -10, tr: 'opacity 450ms ease, transform 700ms cubic-bezier(.4,0,.2,1)', hidden: 'true' };
+      return { text: textAt(kk + 1), op: 0, y: 10, tr: 'opacity 150ms ease, transform 0ms linear', hidden: 'true' };
+    };
+    const s0 = slot(0);
+    const s1 = slot(1);
+    const s2 = slot(2);
+    const steps = all.map((st, i) => ({ label: st.label, delay: i * 70 }));
+
+    // sensitive-memory card rows
+    const trayOpen = s.tray === 'ask' || s.tray === 'leaving';
+    const trayH = trayOpen ? 100 : 0;
+    const trayGap = trayOpen ? 6 : 0;
+    const row = (i) => {
+      if (s.tray === 'ask') {
+        const d = 260 + i * 120;
+        return { op: 1, y: 0, tr: 'opacity 650ms ease ' + d + 'ms, transform 900ms cubic-bezier(.22,1,.36,1) ' + d + 'ms' };
+      }
+      if (s.tray === 'leaving') {
+        const d = (2 - i) * 60;
+        return { op: 0, y: 6, tr: 'opacity 380ms ease ' + d + 'ms, transform 480ms ease ' + d + 'ms' };
+      }
+      return { op: 0, y: 12, tr: 'opacity 200ms ease, transform 200ms ease' };
+    };
+    const t1 = row(0);
+    const t2 = row(1);
+    const t3 = row(2);
+
+    // reply words
+    const m = this.model();
+    const selOn = s.selS >= 0;
+    const selKey = selOn ? this.memKeyFor(s.selS, s.selE) : '';
+    const inSel = (i) => selOn && i >= s.selS && i <= s.selE;
+    const hitPE = s.dragging ? 'none' : 'auto';
+    const paras = [];
+    const noteIdx = this.seattleIdx();
+    // once a memory is corrected, the words it shaped get struck through, word by word ("6" also gets its "4")
+    const mr = this.memRanges();
+    const strikes = [];
+    const cur = s.memCur || {};
+    const mst = s.memState || {};
+    const fixes = {};
+    let fixStruck = {};
+    // "6 months": edit -> strike "6", add "4"; any other option -> strike "6 months"
+    if (mr.months) {
+      if (mst.months) strikes.push(mr.months);
+      else if (cur.months) { strikes.push([mr.months[0], mr.months[0]]); fixes[mr.months[0]] = '4'; }
+    }
+    // "Nick moved to Seattle": edit -> strike "Nick", add "Nate"; outdated etc. -> strike just "Nick moved to Seattle" (Seattle is still the favourite city)
+    const sea = this.seattleIdx();
+    if (mr.nickInSea >= 0 && sea >= 0) {
+      if (cur.moved) fixes[mr.nickInSea] = 'Nate';
+      if (mst.moved) { strikes.push([mr.nickInSea, sea]); fixStruck[mr.nickInSea] = true; }
+      else if (cur.moved) strikes.push([mr.nickInSea, mr.nickInSea]);
+    }
+    // "your favourite city": strike only that part
+    if (mst.fav && mr.fav) strikes.push(mr.fav);
+    if (mst.insta && mr.insta) strikes.push(mr.insta);
+    const strikeOf = (i) => strikes.find((r) => i >= r[0] && i <= r[1]) || null;
+    const struckAt = (i) => { const r = strikeOf(i); return r ? i - r[0] : -1; };
+    // the note on "Seattle" opens the side chat; once that chat was continued elsewhere, it opens the new chat
+    const noteClick = this._noteClick || (this._noteClick = () => {
+      this.clear();
+      this.setState({ fingerOn: false, ended: true });
+      if ((this.state || {}).seattleMoved) this.setState({ ncOn: true });
+      else this.reopenFromNote();
+    });
+    if (s.words > 0) {
+      m.paras.forEach((r, pi) => {
+        const ws = [];
+        for (let i = r[0]; i <= r[1]; i++) {
+          const shown = i < s.words;
+          const sel = inSel(i);
+          const isS = selOn && i === s.selS;
+          const isE = selOn && i === s.selE;
+          ws.push({
+            key: i, i: i, t: m.words[i].t, sp: i < r[1] ? ' ' : '',
+            op: shown ? 1 : 0, col: struckAt(i) >= 0 ? '#87867F' : (shown ? '#141413' : '#87867F'), dy: shown ? 0 : 4,
+            colDur: struckAt(i) >= 0 ? 900 : 1300,
+            stW: struckAt(i) >= 0 ? '100%' : '0%',
+            stDelay: Math.max(0, struckAt(i)) * 45,
+            spStW: strikeOf(i) && i < strikeOf(i)[1] ? '100%' : '0%',
+            hasFix: fixes[i] != null, fixText: fixes[i] || '', fixColor: fixStruck[i] ? '#87867F' : '#B85C3E', fixStW: fixStruck[i] ? '100%' : '0%',
+            spStDelay: Math.max(0, struckAt(i)) * 45 + 300,
+            sel: sel ? '1' : '0', bg: sel ? HL : NOHL,
+            spBg: sel && i < r[1] && inSel(i + 1) ? HL : NOHL,
+            rad: isS && isE ? '3px' : (isS ? '3px 0 0 3px' : (isE ? '0 3px 3px 0' : '0')),
+            isStart: isS, isEnd: isE, hitPE: hitPE,
+            hasNote: s.noteOn && i === noteIdx, noteClick: noteClick
+          });
+        }
+        paras.push({ key: pi, words: ws });
+      });
+    }
+
+    // the star / window geometry
+    const ICON = 34;
+    const orbVisible = s.popOpen || (selOn && s.iconFor !== '' && s.orbShown);
+    const iconL = clamp(s.iconX - 10, 12, 390 - 12 - ICON);
+    const iconT = clamp(s.iconY - ICON - 4, 108, maxBottom - ICON);
+    let g;
+    if (s.popOpen && s.ncGrow) {
+      g = { l: 0, t: 0, w: 390, h: 844, r: 0 };
+    } else if (s.popOpen && s.expanded) {
+      g = { l: 12, t: 112, w: 366, h: Math.max(220, maxBottom - 112), r: 24 };
+    } else if (s.popOpen) {
+      // options and edit share one fixed size; the confirmation and the quick-question chat fit their content
+      const w = 286;
+      // edit keeps the options size; everything else follows its content (so a long question in the input grows the box instead of being cut off)
+      const want = (s.popMode === 'opts' || s.popMode === 'edit') ? 232 : Math.max(90, s.popH || 150);
+      const h = Math.min(want, maxBottom - 112);
+      // keep the selected words visible: sit above them if there's room, otherwise just below
+      const above = s.iconY - 10 - h;
+      const below = (s.iconB || s.iconY + 23) + 10;
+      let top = above >= 112 ? above : (below + h <= maxBottom ? below : maxBottom - h);
+      top = Math.max(112, Math.min(top, maxBottom - h));
+      g = { l: clamp(iconL + ICON - w, 12, 390 - 12 - w), t: top, w: w, h: h, r: 18 };
+    } else {
+      g = { l: iconL, t: iconT, w: ICON, h: ICON, r: ICON / 2 };
+    }
+    const EASE = 'cubic-bezier(.22,1,.36,1)';
+    const orbTrans = orbVisible
+      ? 'left 720ms ' + EASE + ', top 720ms ' + EASE + ', width 720ms ' + EASE + ', height 720ms ' + EASE + ', border-radius 720ms ' + EASE + ', box-shadow 720ms ease, opacity 350ms ease, transform 520ms cubic-bezier(.34,1.56,.64,1)'
+      : 'opacity 300ms ease, transform 300ms ease';
+
+    // quick questions
+    const qa = this.qaFor(s.miniThread);
+    const minis = [];
+    for (let i = 0; i < s.miniCount && i < qa.length; i++) {
+      const typing = s.miniTyping === i;
+      const rev = typing ? 0 : ((s.miniRev || [0, 0, 0])[i] || 0);
+      const ws = qa[i].a.split(' ').map((tx, j) => ({ key: j, t: tx, sp: ' ', op: j < rev ? 1 : 0, col: j < rev ? '#141413' : '#87867F', dy: j < rev ? 0 : 3 }));
+      minis.push({ key: 'q' + i, isQ: true, isA: false, text: qa[i].q, words: [], dotsOp: 0 });
+      minis.push({ key: 'a' + i, isQ: false, isA: true, text: '', words: ws, dotsOp: typing ? 1 : 0 });
+    }
+    // memory bookkeeping for the window
+    const memKeyNow = s.memKey || '';
+    const memIds = this.idsFor(memKeyNow);
+    const mlog = s.memLog || {};
+    const mstate = s.memState || {};
+    const memUpdates = memIds.reduce((n, id) => n + ((mlog[id] || []).length), 0);
+    const memLast = memIds.reduce((t, id) => { const lg = mlog[id] || []; return lg.length && (!t || lg[lg.length - 1] > t) ? lg[lg.length - 1] : t; }, '');
+    const stateWord = { outdated: 'Marked outdated', irrelevant: 'Not used here', forget: 'Forgotten', hide: 'Won’t be mentioned' };
+    const memRows = memIds.map((id) => {
+      const lg = mlog[id] || [];
+      const chip = mstate[id] ? stateWord[mstate[id]] + ' · ' + lg[lg.length - 1] : (lg.length ? 'Updated ' + lg[lg.length - 1] : '');
+      return {
+        key: id, id: id, text: this.memTextOf(id),
+        color: mstate[id] ? '#87867F' : '#141413',
+        hasChip: !!chip, chip: chip,
+        open: () => { this.clear(); this.setState({ fingerOn: false, ended: true }); this.openMem(id); }
+      };
+    });
+    let memStatusLine = 'Saved memory · never changed';
+    if (s.memId) {
+      const lg = mlog[s.memId] || [];
+      if (mstate[s.memId]) memStatusLine = stateWord[mstate[s.memId]] + ' · ' + lg[lg.length - 1];
+      else if (lg.length) memStatusLine = 'Saved memory · updated ' + (lg.length === 1 ? 'once' : lg.length + ' times') + ', last at ' + lg[lg.length - 1];
+    }
+    const left = Math.max(0, 3 - s.miniCount);
+    const sideOn = s.popOpen && s.expanded;
+    const showChoices = s.popOpen && s.miniDone;
+
+    return {
+      setRoot: this._setRoot || (this._setRoot = (el) => { if (el) this._root = el; }),
+      onDown: (e) => this.onDown(e),
+      onMove: (e) => this.onMove(e),
+      onUp: (e) => this.onUp(e),
+      onCancel: () => this.onCancel(),
+      pauseClick: () => this.togglePause(),
+      playClick: () => this.playToggle(),
+      playLabel: s.paused || s.ended ? 'Play' : 'Pause',
+      showPlayIcon: !!s.paused || !!s.ended,
+      showPauseIcon: !s.paused && !s.ended,
+      scrubDown: (e) => this.scrubStart(e),
+      scrubOnAttr: s.paused || s.scrubbing || s.scrubPeek ? '1' : '0',
+      scrubAttr: s.scrubbing ? '1' : '0',
+      scrubPct: this.scrubPct(),
+      scrubTime: this.scrubLabel(),
+      restartClick: () => { this._paused = false; this._lastTick = Date.now(); this.play(); },
+      stopPtr: (e) => { if (e && e.stopPropagation) e.stopPropagation(); if (e && e.pointerType && e.pointerType !== 'mouse') { clearTimeout(this._peekT); this._peekT = setTimeout(() => this.setState({ scrubPeek: false }), 3200); } },
+      paused: !!s.paused,
+      playing: !s.paused,
+      pausedAttr: s.paused ? '1' : '0',
+      pauseText: s.paused ? 'Resume' : 'Pause',
+      pauseLabel: s.paused ? 'Resume the demo' : 'Pause the demo',
+      pauseDisp: s.ended && !s.paused ? 'none' : 'flex',
+      noMenu: (e) => { if (e && e.preventDefault) e.preventDefault(); },
+      onScroll: () => { const st = this.state || {}; if (st.selS >= 0 && !st.popOpen) this.placeIcon(); },
+
+      name: this.personName(),
+
+      fLeft: s.fingerX - 22,
+      fTop: s.fingerY - 22,
+      fOp: touches && s.fingerOn ? 1 : 0,
+      fScale: s.fingerDown ? 0.82 : 1,
+      fBg: s.fingerDown ? 'rgba(20,20,19,0.32)' : 'rgba(20,20,19,0.16)',
+      fTrans: s.fingerOn
+        ? 'left 720ms cubic-bezier(.25,.8,.25,1), top 720ms cubic-bezier(.25,.8,.25,1), opacity 320ms ease, transform 200ms ease, background-color 200ms ease'
+        : 'opacity 320ms ease',
+
+      t0Op: (s.words > 0 || s.titleKeep) ? 0 : 1,
+      t0Y: (s.words > 0 || s.titleKeep) ? -6 : 0,
+      t0Hidden: (s.words > 0 || s.titleKeep) ? 'true' : 'false',
+      tNOp: (s.words > 0 || s.titleKeep) ? 1 : 0,
+      tNY: (s.words > 0 || s.titleKeep) ? 0 : 6,
+      tNHidden: (s.words > 0 || s.titleKeep) ? 'false' : 'true',
+
+      greetOp: s.sent ? 0 : 1,
+      greetTy: s.sent ? -12 : 0,
+      greetSc: s.sent ? 0.97 : 1,
+      greetHidden: s.sent ? 'true' : 'false',
+
+      bubOp: s.bubbleUp ? 1 : 0,
+      bubY: s.bubbleUp ? 0 : 400,
+      bubSc: s.bubbleUp ? 1 : 0.96,
+
+      chatBl: sideOn ? 5 : 0,
+      chatOp: sideOn ? 0.45 : 1,
+
+      composerBottom: composerBottom,
+      composerBorder: s.focus === 'main' ? 'rgba(31,30,29,0.35)' : 'rgba(31,30,29,0.15)',
+      chatBottom: composerBottom + 56 + trayH + trayGap + 12,
+      trayH: trayH,
+      trayGap: trayGap,
+      trayOp: trayOpen ? 1 : 0,
+      trayPE: s.tray === 'ask' ? 'auto' : 'none',
+      trayHidden: s.tray === 'ask' ? 'false' : 'true',
+      t1Op: t1.op, t1Y: t1.y, t1Tr: t1.tr,
+      t2Op: t2.op, t2Y: t2.y, t2Tr: t2.tr,
+      t3Op: t3.op, t3Y: t3.y, t3Tr: t3.tr,
+      yesScale: s.yesDown ? 0.96 : 1,
+      yesOp: s.yesDown ? 0.85 : 1,
+
+      showChoices: showChoices,
+      showInputRow: !showChoices,
+      typed: s.typed,
+      inputOp: s.inputFade ? 0 : 1,
+      showCaret: s.focus === 'main',
+      showPlaceholder: s.typed === '',
+      mainPh: sideOn && !s.miniDone ? 'Ask in this side chat · ' + left + ' left' : 'Message',
+      sendBg: s.typed ? '#D97757' : '#DEDCD1',
+      sendScale: s.sendDown ? 0.88 : 1,
+
+      kbY: s.kbUp ? 0 : 105,
+      row1: 'qwertyuiop'.split('').map(key),
+      row2: 'asdfghjkl'.split('').map(key),
+      row3: 'zxcvbnm'.split('').map(key),
+      shiftBg: s.shift ? '#FFFFFF' : '#B0AEA5',
+      shiftFill: s.shift ? '#141413' : 'none',
+      spaceBg: s.activeKey === 'space' ? '#C2C0B6' : '#FFFFFF',
+      bsBg: s.bsDown ? '#FFFFFF' : '#B0AEA5',
+
+      sent: s.sent,
+      sentText: s.sentText,
+      thinking: s.thinking,
+      liveOp: thinkDone ? 0 : 1,
+      liveY: thinkDone ? -8 : 0,
+      liveHidden: thinkDone ? 'true' : 'false',
+      s0Text: s0.text, s0Op: s0.op, s0Y: s0.y, s0Tr: s0.tr, s0Hidden: s0.hidden,
+      s1Text: s1.text, s1Op: s1.op, s1Y: s1.y, s1Tr: s1.tr, s1Hidden: s1.hidden,
+      s2Text: s2.text, s2Op: s2.op, s2Y: s2.y, s2Tr: s2.tr, s2Hidden: s2.hidden,
+      doneOp: thinkDone ? 1 : 0,
+      doneX: thinkDone ? 0 : -8,
+      donePE: thinkDone ? 'auto' : 'none',
+      thinkOpen: thinkDone && !s.collapsed,
+      thinkExpanded: thinkDone && !s.collapsed ? 'true' : 'false',
+      chevRot: thinkDone && !s.collapsed ? 180 : 0,
+      steps: steps,
+
+      hasReply: s.words > 0,
+      paras: paras,
+      pillOp: s.savedPill ? 1 : 0,
+      pillX: s.savedPill ? 0 : -8,
+      pillIconSc: s.savedPill ? 1 : 0.4,
+      pillPE: s.savedPill ? 'auto' : 'none',
+      pillHidden: s.savedPill ? 'false' : 'true',
+
+      orbL: g.l, orbT: g.t, orbW: g.w, orbH: g.h, orbR: g.r,
+      orbShadow: s.popOpen ? '0 18px 44px rgba(20,20,19,0.16), 0 2px 8px rgba(20,20,19,0.06)' : '0 3px 12px rgba(20,20,19,0.16)',
+      orbOp: orbVisible ? 1 : 0,
+      orbSc: orbVisible ? 1 : 0.5,
+      orbTrans: orbTrans,
+      orbPE: orbVisible ? 'auto' : 'none',
+      glyphOp: s.popOpen ? 0 : 1,
+      glyphSc: s.popOpen ? 0.6 : 1,
+      glyphPE: s.popOpen ? 'none' : 'auto',
+      popInnerW: sideOn ? 366 : 286,
+      popInnerH: sideOn ? '100%' : 'auto',
+      popContentOp: s.popOpen && !s.ncGrow ? 1 : 0,
+      popContentDelay: s.popOpen ? 240 : 0,
+      popPE: s.popOpen ? 'auto' : 'none',
+      popHidden: s.popOpen ? 'false' : 'true',
+      popTitle: s.popMode === 'main' ? 'Side chat' : (s.popMode === 'edit' ? 'Edit memory' : (memIds.length > 1 ? 'Manage memories (' + memIds.length + ')' : 'Manage memory (1)')),
+      headMemOp: 0,
+      headNoteOp: s.popMode === 'main' ? 1 : 0,
+      orbMemOp: selKey ? 1 : 0,
+      orbNoteOp: selKey ? 0 : 1,
+      orbLabel: selKey ? 'Open the side chat; this came from memory' : 'Start a side chat about this',
+      backOp: s.popMode !== 'main' ? 1 : 0,
+      backX: s.popMode !== 'main' ? 0 : 6,
+      backPE: s.popMode !== 'main' ? 'auto' : 'none',
+      expBtnOp: s.popMode === 'main' ? 1 : 0,
+      expBtnPE: s.popMode === 'main' ? 'auto' : 'none',
+      backClick: () => { this.clear(); this.setState({ fingerOn: false, ended: true }); this.goBack(); },
+      expandLabel: s.expanded ? 'Shrink side chat' : 'Expand side chat',
+      expOp: s.expanded ? 0 : 1,
+      expSc: s.expanded ? 0.7 : 1,
+      shrOp: s.expanded ? 1 : 0,
+      shrSc: s.expanded ? 1 : 0.7,
+
+      navCls: s.navDir === 'back' ? 'slide-b' : 'slide-f',
+      scrMain: s.popMode === 'main',
+      scrMems: s.popMode === 'mems',
+      scrOpts: s.popMode === 'opts',
+      scrEdit: s.popMode === 'edit',
+      scrDone: s.popMode === 'done',
+      mainFlex: sideOn ? '1 1 0px' : '0 0 auto',
+
+      // "Manage memory" row on the side chat, with a quiet count once anything changed
+      hasMemRow: !!memKeyNow,
+      hasMemLog: memUpdates > 0,
+      memLogLabel: (memUpdates === 1 ? 'Updated once' : (memUpdates === 2 ? 'Updated twice' : 'Updated ' + memUpdates + ' times')) + (memLast ? ' · last ' + memLast : ''),
+      memCount: memIds.length,
+      manageLabel: memIds.length > 1 ? 'Manage memories' : 'Manage memory',
+      manageAria: 'Manage ' + memIds.length + (memIds.length === 1 ? ' memory' : ' memories') + ' used here',
+      manageClick: () => { this.clear(); this.setState({ fingerOn: false, ended: true }); this.openManage(); },
+
+      // the list of memories in this selection
+      memCountLabel: memIds.length === 2 ? 'two memories:' : memIds.length + ' memories:',
+      memRows: memRows,
+
+      // one memory's options
+      memStatus: memStatusLine,
+      memQuote: s.memId ? this.memTextOf(s.memId) : '',
+
+      memText: s.memText,
+      memCaret: s.focus === 'mem',
+      memBorder: s.focus === 'mem' ? 'rgba(217,119,87,0.6)' : 'rgba(31,30,29,0.15)',
+
+      doneTitle: s.doneTitle,
+      doneMem: s.doneMem,
+      doneMemColor: s.doneMemStruck ? '#87867F' : '#5E5D59',
+      doneMemDeco: s.doneMemStruck ? 'line-through' : 'none',
+      doneAck: s.doneAck,
+      doneStamp: s.doneStamp,
+
+      showMsgs: s.popMode === 'main' && s.miniCount > 0,
+      msgFlex: sideOn ? '1 1 0px' : '0 0 auto',
+      minis: minis,
+      showMiniInput: s.popMode === 'main' && !sideOn && !s.miniDone && left > 0,
+      miniInput: s.miniInput,
+      miniCaret: s.focus === 'mini',
+      miniPhOn: s.miniInput === '',
+      miniPh: 'Ask a quick question · ' + left + ' left',
+      miniBorder: s.focus === 'mini' ? 'rgba(217,119,87,0.55)' : 'rgba(31,30,29,0)',
+      miniSendBg: s.miniInput ? '#D97757' : '#DEDCD1',
+      miniSendSc: s.miniSendDown ? 0.88 : 1,
+
+      ended: s.ended,
+
+      // ---------- Demo 1 ----------
+      footOp: s.footOn ? 1 : 0,
+      footY: s.footOn ? 0 : 8,
+      footPE: s.footOn ? 'auto' : 'none',
+      saveLineH: s.saveDone ? 0 : 22,
+      saveLineMb: s.saveDone ? 0 : 6,
+      saveLineOp: s.saveDone ? 0 : 1,
+      saveText: cand.norm.length ? (cand.sens.length + cand.norm.length) + ' (' + cand.sens.length + ' sensitive)' : cand.sens.length + ' sensitive',
+      hasNorm: cand.norm.length > 0,
+      rwOp: s.rewindHint ? 1 : 0,
+      rwY: s.rewindHint ? 0 : -6,
+      rwHidden: s.rewindHint ? 'false' : 'true',
+      saveLineClick: () => { this.clear(); this.setState({ fingerOn: false, ended: true, sheet: 'save' }); },
+      bookOp: s.bookOn ? 1 : 0,
+      bookPE: s.bookOn ? 'auto' : 'none',
+      bookCount: bookCount,
+      bookNumColor: s.bookGlow ? '#C15F3C' : '#73726C',
+      bookNumW: s.bookGlow ? 600 : 500,
+      bookNumGlow: s.bookGlow ? '0 0 10px rgba(217,119,87,0.55), 0 0 2px rgba(217,119,87,0.35)' : '0 0 10px rgba(217,119,87,0), 0 0 2px rgba(217,119,87,0)',
+      bookNumSc: s.bookGlow ? 1.22 : 1,
+      bookNumTr: s.bookGlow ? 'color 260ms ease, text-shadow 320ms ease, transform 380ms cubic-bezier(.34,1.45,.64,1)' : 'color 650ms ease, text-shadow 750ms ease, transform 560ms cubic-bezier(.22,1,.36,1)',
+      bookAria: bookCount + ' memories in this reply',
+      bookClick: () => { this.clear(); this.setState({ fingerOn: false, ended: true, sheet: 'book' }); },
+
+      sheetPE: s.sheet ? 'auto' : 'none',
+      sheetHidden: s.sheet ? 'false' : 'true',
+      scrimOp: s.sheet ? 1 : 0,
+      scrimClick: () => { this.clear(); this.setState({ fingerOn: false, ended: true, sheet: '' }); },
+      saveSheetY: s.sheet === 'save' ? 0 : 105,
+      bookSheetY: s.sheet === 'book' ? 0 : 105,
+      all: { boxBorder: allOn ? '#141413' : '#B0AEA5', boxBg: allOn ? '#141413' : '#FFFFFF', checkOp: allOn ? 1 : 0 },
+      selectAllClick: () => { this.clear(); this.setState({ fingerOn: false, ended: true }); this.selectAll(); },
+      sensItems: cand.sens.map(pickRow),
+      normItems: cand.norm.map(pickRow),
+      saveBtnBg: pickedN ? '#141413' : '#B0AEA5',
+      saveBtnLabel: pickedN ? 'Save ' + pickedN : 'Nothing selected',
+      saveConfirmClick: () => { this.clear(); this.setState({ fingerOn: false, ended: true }); if (pickedN) this.confirmSave(); },
+
+      hasUsed: cand.used.length > 0,
+      noUsed: cand.used.length === 0,
+      usedItems: this.usedRows(),
+      savedItems: savedRows,
+      noSaved: savedRows.length === 0,
+      updateLabel: savedRows.length ? 'Update' : 'Save',
+      updateClick: () => { this.clear(); this.setState({ fingerOn: false, ended: true, sheet: 'save' }); },
+      allMemClick: () => { this.clear(); this.setState({ fingerOn: false, ended: true }); },
+
+      ncOn: s.ncOn,
+      ncOp: s.ncOn ? 1 : 0,
+      ncPE: s.ncOn ? 'auto' : 'none',
+      ncHidden: s.ncOn ? 'false' : 'true',
+      replyCursor: s.toolOn ? 'crosshair' : 'auto',
+      toolPressed: s.toolOn ? 'true' : 'false',
+      toolBg: s.toolOn ? 'rgba(217,119,87,0.16)' : 'rgba(217,119,87,0)',
+      toolColor: s.toolOn ? '#B85C3E' : '#3D3D3A',
+      toolFill: s.toolOn ? 'rgba(217,119,87,0.22)' : 'rgba(217,119,87,0)',
+      toolSc: s.toolOn ? 1.06 : 1,
+      toolHintOp: s.toolOn ? 1 : 0,
+      toolHintY: s.toolOn ? 0 : -6,
+      toolHintHidden: s.toolOn ? 'false' : 'true',
+      // the sticky-note tool only wakes up once there's an AI reply to pick words from
+      toolDisabled: s.words === 0,
+      toolOp: s.words === 0 ? 0.32 : 1,
+      toolCursor: s.words === 0 ? 'default' : 'pointer',
+      toolClick: () => {
+        const st = this.state || {};
+        if (!st.words) return;
+        this.clear();
+        this.setState({ fingerOn: false, ended: true, toolOn: !st.toolOn });
+      },
+      ncMsgs: this.qaFor('seattle').reduce((acc, x, i) => acc.concat([
+        { key: 'q' + i, isQ: true, isA: false, text: x.q, delay: 450 + i * 240 },
+        { key: 'a' + i, isQ: false, isA: true, text: x.a, delay: 570 + i * 240 }
+      ]), []),
+      closeClick: () => {
+        this.clear();
+        this.setState({ fingerOn: false, ended: true });
+        if (((this.state || {}).miniCount || 0) > 0) this.closeToNote();
+        else this.closeSide(true);
+      },
+      newChatClick: () => { this.clear(); this.setState({ fingerOn: false, ended: true }); this.startNewChat(); },
+      backToMainClick: () => { this.clear(); this.setState({ fingerOn: false, ended: true, ncOn: false }); },
+
+      replay: () => this.play(),
+      toggleThink: () => { if (thinkDone) this.setState({ collapsed: !s.collapsed }); },
+      pickYes: () => {
+        this.clear();
+        this.setState({ fingerOn: false, fingerDown: false });
+        this.afterAsk(true);
+      },
+      pickNo: () => {
+        this.clear();
+        this.setState({ fingerOn: false, fingerDown: false });
+        this.afterAsk(false);
+      },
+      openPopClick: () => { this.clear(); this.setState({ fingerOn: false, ended: true }); this.openPop(); },
+      optOutdated: () => { this.clear(); this.setState({ fingerOn: false, ended: true }); this.pickOpt('outdated'); },
+      optIrrelevant: () => { this.clear(); this.setState({ fingerOn: false, ended: true }); this.pickOpt('irrelevant'); },
+      optEdit: () => { this.clear(); this.setState({ fingerOn: false, ended: true }); this.pickOpt('edit'); },
+      optForget: () => { this.clear(); this.setState({ fingerOn: false, ended: true }); this.pickOpt('forget'); },
+      optHide: () => { this.clear(); this.setState({ fingerOn: false, ended: true }); this.pickOpt('hide'); },
+      cancelEditClick: () => { this.clear(); this.setState({ fingerOn: false, ended: true, popMode: 'opts', navDir: 'back', focus: '', kbUp: false }); },
+      saveMemClick: () => {
+        this.clear();
+        const st = this.state || {};
+        this.setState({ fingerOn: false, ended: true });
+        this.saveMem();
+      },
+      toggleExpandClick: () => { this.clear(); const st = this.state || {}; this.setState({ fingerOn: false, ended: true, expanded: !st.expanded, focus: '', kbUp: false }); },
+      chooseEndClick: () => { this.clear(); this.setState({ fingerOn: false, ended: true }); this.closeSide(true); }
+    };
+  }
+}
+</script>
+</body>
+</html>

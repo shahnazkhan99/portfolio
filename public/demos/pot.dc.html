@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cooking pot — animated</title>
+<script src="../support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#002AFF}a:hover{color:#001A9E}
+@keyframes potSteam{0%{transform:translateY(46px) scaleY(.75);opacity:0}22%{opacity:1}70%{opacity:.8}100%{transform:translateY(-70px) scaleY(1.15);opacity:0}}
+.pot-steam{animation:potSteam 3s cubic-bezier(.4,0,.6,1) infinite;transform-origin:50% 100%}
+@keyframes potSteamMid{0%{transform:translateY(46px) scaleY(.75);opacity:0}22%{opacity:1}70%{opacity:.8}100%{transform:translateY(-50px) scaleY(1.1);opacity:0}}
+.pot-steam.pot-mid{animation-name:potSteamMid}
+@media (prefers-reduced-motion: reduce){.pot-steam{animation:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 880px; height: 860px; background: #FFFFFF; overflow: hidden; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif">
+
+<svg class="pot-steam" width="80" height="150" viewBox="0 0 80 150" style="position: absolute; left: 218px; top: 98px; animation-delay: 0s" aria-hidden="true"><path d="M44 12 C14 44 14 59 46 74 S77 109 47 136" fill="none" stroke="#ECECEC" stroke-width="22" stroke-linecap="round"></path></svg>
+<svg class="pot-steam pot-mid" width="80" height="150" viewBox="0 0 80 150" style="position: absolute; left: 407px; top: 72px; animation-delay: -1s" aria-hidden="true"><path d="M44 12 C14 44 14 59 46 74 S77 109 47 136" fill="none" stroke="#ECECEC" stroke-width="22" stroke-linecap="round"></path></svg>
+<svg class="pot-steam" width="80" height="150" viewBox="0 0 80 150" style="position: absolute; left: 598px; top: 98px; animation-delay: -2s" aria-hidden="true"><path d="M44 12 C14 44 14 59 46 74 S77 109 47 136" fill="none" stroke="#ECECEC" stroke-width="22" stroke-linecap="round"></path></svg>
+
+<div style="position: absolute; left: 0; top: 0; width: 80px; height: 80px; color: {{c0}}; opacity: {{o0}}; transform: {{t0}}"><svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Clipboard"><path d="M9 4.5H7.5a2 2 0 0 0-2 2V19a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V6.5a2 2 0 0 0-2-2H15"></path><rect x="9" y="3" width="6" height="3" rx="1"></rect><path d="M9 11h.01M12 11h3M9 15h.01M12 15h3"></path></svg></div>
+
+<div style="position: absolute; left: 0; top: 0; width: 80px; height: 80px; color: {{c1}}; opacity: {{o1}}; transform: {{t1}}"><svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Database"><ellipse cx="12" cy="6" rx="7" ry="3"></ellipse><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6"></path><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"></path></svg></div>
+
+<div style="position: absolute; left: 0; top: 0; width: 80px; height: 80px; color: {{c2}}; opacity: {{o2}}; transform: {{t2}}"><svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Branching"><rect x="3" y="3" width="18" height="18" rx="5"></rect><path d="M12 6.5v7.5M12 14l-4.5 3.5M12 14l4.5 3.5"></path><path d="M7.2 15.2l.3 2.3 2.3-.2M16.8 15.2l-.3 2.3-2.3-.2"></path></svg></div>
+
+<div style="position: absolute; left: 0; top: 0; width: 80px; height: 80px; color: {{c3}}; opacity: {{o3}}; transform: {{t3}}"><svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Neural network"><circle cx="5" cy="8" r="2.2"></circle><circle cx="5" cy="16" r="2.2"></circle><circle cx="12" cy="8" r="2.2"></circle><circle cx="12" cy="16" r="2.2"></circle><circle cx="19" cy="12" r="2.2"></circle><path d="M7.2 8h2.6M7.2 16h2.6M6.6 9.6l3.8 4.8M6.6 14.4l3.8-4.8M14 9l3.1 1.8M14 15l3.1-1.8"></path></svg></div>
+
+<div style="position: absolute; left: 0; top: 0; width: 80px; height: 80px; color: {{c4}}; opacity: {{o4}}; transform: {{t4}}"><svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Git branch"><circle cx="6" cy="5.5" r="2.2"></circle><circle cx="6" cy="18.5" r="2.2"></circle><circle cx="18" cy="7" r="2.2"></circle><path d="M6 7.7v8.6M18 9.2c0 5-5.5 5.5-11 7.6"></path></svg></div>
+
+<div style="position: absolute; left: 0; top: 0; width: 80px; height: 80px; color: {{c5}}; opacity: {{o5}}; transform: {{t5}}"><svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Reinforcement"><path d="M12 2.8l1.6 3.3 3.6.5-2.6 2.5.6 3.6L12 11l-3.2 1.7.6-3.6-2.6-2.5 3.6-.5z"></path><path d="M3.8 13.5a8.3 8.3 0 0 0 15.9 2.3"></path><path d="M20.2 12.9l-.5 2.9-2.9-.7"></path></svg></div>
+
+<div style="position: absolute; left: 0; top: 0; width: 80px; height: 80px; color: {{c6}}; opacity: {{o6}}; transform: {{t6}}"><svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Database check"><ellipse cx="11" cy="5.5" rx="7" ry="2.8"></ellipse><path d="M4 5.5v12c0 1.5 3.1 2.8 7 2.8M18 5.5V12M4 11.5c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8"></path><path d="M14 18l2 2 4-4.5"></path></svg></div>
+
+<div style="position: absolute; left: 0; top: 0; width: 80px; height: 80px; color: {{c7}}; opacity: {{o7}}; transform: {{t7}}"><svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Loop arrow"><circle cx="4" cy="11.5" r="1.9"></circle><path d="M5.9 11.5H9a6 6 0 1 1 1.9 4.4"></path><path d="M8.6 16.6l2.3-.7-.3-2.4"></path></svg></div>
+
+<div style="position: absolute; left: 0; top: 0; width: 80px; height: 80px; color: {{c8}}; opacity: {{o8}}; transform: {{t8}}"><svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Sticky note"><path d="M4.5 4.5h15V14l-5.5 5.5H4.5z"></path><path d="M14 19.5V14h5.5"></path></svg></div>
+
+<div style="position: absolute; left: 0; top: 0; width: 80px; height: 80px; color: {{c9}}; opacity: {{o9}}; transform: {{t9}}"><svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Book"><path d="M2.5 5.5c2.5-1 6-1 9.5 1 3.5-2 7-2 9.5-1v13c-2.5-1-6-1-9.5 1-3.5-2-7-2-9.5-1z"></path><path d="M12 6.5v13"></path></svg></div>
+
+<div style="position: absolute; left: 0; top: 0; width: 80px; height: 80px; color: {{c10}}; opacity: {{o10}}; transform: {{t10}}"><svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Search"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="M15.4 15.4l5.1 5.1"></path></svg></div>
+
+<sc-for list="{{tossed}}" as="b" hint-placeholder-count="0">
+<div style="position: absolute; left: 0; top: 0; width: 0; height: 0; transform: {{b.tf}}; opacity: {{b.op}}">
+<span style="position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); font-size: 26px; line-height: 30px; white-space: nowrap; color: #000000">{{b.text}}</span>
+</div>
+</sc-for>
+
+<div style="position: absolute; left: 0; top: 0; width: 880px; height: 860px; transform-origin: {{potOrigin}}; transform: {{potTransform}}">
+<sc-for list="{{noodles}}" as="n" hint-placeholder-count="6">
+<div style="position: absolute; left: 0; top: 0; width: 0; height: 0; transform: {{n.tf}}; opacity: {{n.op}}">
+<div style="position: absolute; top: -15px; left: {{n.left}}px; width: {{n.w}}px; height: 30px; display: flex; align-items: center; justify-content: {{n.jc}}">
+<span style="font-size: 26px; line-height: 30px; letter-spacing: 0; white-space: nowrap; color: #000000">{{n.text}}</span>
+</div>
+</div>
+</sc-for>
+<svg width="880" height="860" viewBox="0 0 880 860" style="position: absolute; left: 0; top: 0" aria-hidden="true"><path d="M187 428 L708 428 L692 660 Q684 768 572 768 L323 768 Q211 768 203 660 Z" fill="#000000"></path><rect x="123" y="393" width="649" height="40" rx="20" fill="#000000"></rect></svg>
+</div>
+
+<sc-for list="{{spill}}" as="sp" hint-placeholder-count="0">
+<div style="position: absolute; left: 0; top: 0; width: 0; height: 0; transform: {{sp.tf}}; opacity: {{sp.op}}">
+<span style="position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); font-size: {{sp.fs}}px; line-height: 1; white-space: nowrap; color: #000000">{{sp.text}}</span>
+</div>
+</sc-for>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#002AFF","options":["#002AFF","#000000","#FF4D00"]},"speed":{"editor":"range","default":1,"min":0.4,"max":2,"step":0.1,"unit":"×"},"$preview":{"width":880,"height":860}}'>
+class Component extends DCLogic {
+  initSim() {
+    const icons = [];
+    for (let i = 0; i < 11; i++) {
+      icons.push({ on: false, x: 440, y: 470, vx: 0, vy: 0, rot: 0, vr: 0, age: 0, ph: Math.random() * 6.28, color: 'black' });
+    }
+    // A potful of noodles, all different lengths. vis = how far out of the pot it pokes.
+    const lens = [17, 6, 6.5, 6, 16, 4, 11, 8, 13, 3.5, 9, 5, 14, 7, 10, 4.5, 3, 12, 5.5, 2.5, 8.5, 15, 4, 6, 3.5, 7.5];
+    const noodles = lens.map((len, i) => {
+      const side = i % 2 === 0 ? 'L' : 'R';
+      return { side, len, ax: 440, th: side === 'L' ? -20 : 20, text: this.bits(Math.ceil(len) + 1), vis: 0, v: 0, target: 0, wait: 0, ph: Math.random() * 6.28 };
+    });
+    // Starting pose, matching the drawing.
+    const pose = [
+      { i: 0, side: 'L', ax: 245, th: -32, vis: 16 },
+      { i: 1, side: 'L', ax: 456, th: -1, vis: 4.6 },
+      { i: 2, side: 'L', ax: 522, th: -6, vis: 5 },
+      { i: 3, side: 'L', ax: 598, th: -4, vis: 4.6 },
+      { i: 4, side: 'R', ax: 648, th: 40, vis: 15 }
+    ];
+    pose.forEach((q) => { const n = noodles[q.i]; Object.assign(n, q); n.target = q.vis; });
+    noodles[0].text = '010010101010101010';
+    noodles[4].text = '01011101010101010';
+    const tossed = [];
+    for (let i = 0; i < 6; i++) tossed.push({ on: false, x: 0, y: 470, vx: 0, vy: 0, rot: 0, vr: 0, text: '101' });
+    const spill = [];
+    for (let i = 0; i < 40; i++) spill.push({ on: false, x: 0, y: 0, vx: 0, vy: 0, rot: 0, vr: 0, age: 0, life: 1, fs: 20, text: '1' });
+    this.sim = {
+      icons, noodles, tossed, spill, drip: 0,
+      pot: { a: 0, va: 0, y: 0, vy: 0, side: -1 },
+      pattern: [{ n: 2, big: true }, { n: 3, big: true }, { n: 1, big: false }, { n: 1, big: false }, { n: 1, big: false }],
+      step: 0, timer: 1.0, queue: [], t: 0, lastColor: 'accent'
+    };
+    return this.sim;
+  }
+
+  bits(n) {
+    let s = '';
+    for (let i = 0; i < n; i++) s += Math.random() < 0.5 ? '0' : '1';
+    return s;
+  }
+
+  rand(a, b) { return a + Math.random() * (b - a); }
+
+  componentDidMount() {
+    if (!this.sim) this.initSim();
+    this.reduced = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.last = performance.now();
+    const loop = (now) => {
+      const speed = this.props.speed ?? 1;
+      const dt = Math.min(0.05, (now - this.last) / 1000) * speed;
+      this.last = now;
+      this.tick(dt);
+      this.setState({ f: now });
+      this.raf = requestAnimationFrame(loop);
+    };
+    if (!this.reduced) this.raf = requestAnimationFrame(loop);
+  }
+
+  componentWillUnmount() {
+    if (this.raf) cancelAnimationFrame(this.raf);
+  }
+
+  thrust(beat) {
+    const s = this.sim;
+    const side = Math.random() < 0.5 ? -1 : 1;
+    const p = s.pot;
+    p.side = side;
+    p.va += -side * (beat.big ? 78 : 36);
+    p.vy += beat.big ? -340 : -170;
+
+    // Icon batch: spaced lanes, parallel drift, alternating colours.
+    const n = beat.n;
+    const lo = 270, hi = 610;
+    const lanes = [];
+    if (n === 1) lanes.push(this.rand(lo + 40, hi - 40));
+    else {
+      const gap = (hi - lo) / (n - 1);
+      for (let k = 0; k < n; k++) lanes.push(lo + k * gap + this.rand(-12, 12));
+    }
+    let drift = -side * this.rand(30, 90);
+    drift = Math.max(255 - Math.min(...lanes), Math.min(640 - Math.max(...lanes), drift));
+    const order = lanes.map((x, k) => k).sort(() => Math.random() - 0.5);
+    let color = s.lastColor === 'black' ? 'accent' : 'black';
+    order.forEach((k, j) => {
+      s.queue.push({ kind: 'icon', at: s.t + 0.07 + j * 0.07, big: beat.big, x0: lanes[k], drift, color, vyJitter: this.rand(-50, 50) });
+      s.lastColor = color;
+      color = color === 'black' ? 'accent' : 'black';
+    });
+
+    // A short noodle or two flies with every batch, on a lower arc so it stays clear of the icons.
+    for (let k = 0; k < 2; k++) {
+      s.queue.push({ kind: 'bit', at: s.t + 0.05 + k * 0.08, big: beat.big, side, half: k });
+    }
+
+    // The pot slops over its rim: mostly over the side that dips.
+    // Strong thrusts always slop a few over; weak ones only rarely let a single chain slip.
+    const count = beat.big ? Math.floor(this.rand(3, 7)) : (Math.random() < 0.15 ? 1 : 0);
+    for (let k = 0; k < count; k++) {
+      const over = Math.random() < 0.75 ? side : -side;
+      this.spillOne(over, beat.big ? 1 : 0.6, this.rand(0, 0.18));
+    }
+    this.stirNoodles(beat.big);
+  }
+
+  spillOne(over, power, delay) {
+    const sp = this.sim.spill.find((q) => !q.on);
+    if (!sp) return;
+    sp.on = true; sp.age = -(delay || 0);
+    sp.x = over > 0 ? this.rand(728, 768) : this.rand(127, 167);
+    sp.y = this.rand(386, 398);
+    sp.vx = over * this.rand(50, 240) * power;
+    sp.vy = -this.rand(60, 360) * power;
+    sp.rot = this.rand(-40, 40);
+    sp.vr = this.rand(-300, 300);
+    sp.fs = 26;
+    sp.text = this.bits(Math.floor(this.rand(1, 10)));
+    sp.life = this.rand(0.9, 1.6);
+  }
+
+  stirNoodles(big) {
+    const s = this.sim;
+    const out = s.noodles.filter((n) => n.target > 0);
+    const inside = s.noodles.filter((n) => n.target <= 0 && n.vis < 1.5);
+    // Some sink back in...
+    const sinkChance = this.rand(0.15, 0.85);
+    out.forEach((n) => { if (Math.random() < sinkChance) { n.target = -1.6; n.wait = this.rand(0, 0.25); } });
+    const stillOut = s.noodles.filter((n) => n.target > 0).length;
+    // ...others rise out, but only into a spot where they can't touch any visible noodle.
+    // Angle/position are re-rolled only while hidden inside the pot.
+    const want = Math.floor(this.rand(2, big ? 12 : 10));
+    let need = Math.max(Math.random() < 0.7 ? 1 : 0, want - stillOut);
+    inside.sort(() => Math.random() - 0.5).forEach((n) => {
+      if (need <= 0) return;
+      const others = s.noodles.filter((o) => o !== n && (o.target > 0 || o.vis > 0));
+      for (let tries = 0; tries < 60; tries++) {
+        const long = n.len > 9;
+        const mag = long ? this.rand(10, 45) : this.rand(0, 55);
+        const th = n.side === 'L' ? -mag : mag;
+        const ax = n.side === 'L' ? this.rand(225, long ? 520 : 600) : this.rand(long ? 380 : 290, 665);
+        const target = n.len * this.rand(0.55, 1);
+        const seg = this.noodleSeg(ax, th, target);
+        if (others.every((o) => this.segDist(seg, this.noodleSeg(o.ax, o.th, Math.max(o.vis, o.target, 0) + 0.4)) > 44)) {
+          n.th = th; n.ax = ax; n.target = target;
+          n.text = this.bits(Math.ceil(n.len) + 1);
+          n.wait = this.rand(0.05, 0.35);
+          need--;
+          return;
+        }
+      }
+    });
+  }
+
+  // Visible part of a standing noodle as a segment: rim anchor -> outer end.
+  noodleSeg(ax, th, chars) {
+    const r = th * Math.PI / 180, L = Math.max(0, chars) * 14.6;
+    return [ax, 413, ax + Math.sin(r) * L, 413 - Math.cos(r) * L];
+  }
+
+  ptSeg(px, py, s) {
+    const dx = s[2] - s[0], dy = s[3] - s[1];
+    const l2 = dx * dx + dy * dy;
+    let t = l2 ? ((px - s[0]) * dx + (py - s[1]) * dy) / l2 : 0;
+    t = Math.max(0, Math.min(1, t));
+    const cx = s[0] + t * dx, cy = s[1] + t * dy;
+    return { d: Math.hypot(px - cx, py - cy), cx, cy };
+  }
+
+  segDist(a, b) {
+    const cross = (ox, oy, ax, ay, bx, by) => (ax - ox) * (by - oy) - (ay - oy) * (bx - ox);
+    const d1 = cross(b[0], b[1], b[2], b[3], a[0], a[1]), d2 = cross(b[0], b[1], b[2], b[3], a[2], a[3]);
+    const d3 = cross(a[0], a[1], a[2], a[3], b[0], b[1]), d4 = cross(a[0], a[1], a[2], a[3], b[2], b[3]);
+    if (((d1 > 0) !== (d2 > 0)) && ((d3 > 0) !== (d4 > 0))) return 0;
+    return Math.min(this.ptSeg(a[0], a[1], b).d, this.ptSeg(a[2], a[3], b).d, this.ptSeg(b[0], b[1], a).d, this.ptSeg(b[2], b[3], a).d);
+  }
+
+  launchIcon(item) {
+    const s = this.sim;
+    const free = s.icons.map((ic, i) => (ic.on ? -1 : i)).filter((i) => i >= 0);
+    if (!free.length) return;
+    const ic = s.icons[free[Math.floor(Math.random() * free.length)]];
+    const g = 1900;
+    const vy = (item.big ? -1060 : -720) + item.vyJitter;
+    const T = (2 * -vy) / g;
+    ic.on = true; ic.age = 0; ic.color = item.color;
+    ic.x = item.x0; ic.y = 470; ic.vy = vy; ic.vx = item.drift / T;
+    ic.rot = this.rand(-30, 30);
+    ic.vr = (Math.random() < 0.5 ? -1 : 1) * this.rand(item.big ? 260 : 140, item.big ? 620 : 320);
+    ic.ph = Math.random() * 6.28;
+  }
+
+  launchBit(item) {
+    const s = this.sim;
+    const b = s.tossed.find((t) => !t.on);
+    if (!b) return;
+    const g = 1900;
+    const vy = item.big ? -this.rand(700, 820) : -this.rand(520, 600);
+    const T = (2 * -vy) / g;
+    const x0 = item.half === 0 ? this.rand(280, 410) : this.rand(470, 600);
+    const target = Math.max(260, Math.min(620, x0 + item.side * -this.rand(20, 90)));
+    b.on = true; b.x = x0; b.y = 440; b.vy = vy; b.vx = (target - x0) / T;
+    b.rot = this.rand(-90, 90);
+    b.vr = (Math.random() < 0.5 ? -1 : 1) * this.rand(300, 700);
+    b.text = this.bits(Math.random() < 0.5 ? 2 : 3);
+  }
+
+  tick(dt) {
+    const s = this.sim;
+    s.t += dt;
+    s.timer -= dt;
+    if (s.timer <= 0) {
+      const beat = s.pattern[s.step % s.pattern.length];
+      this.thrust(beat);
+      s.step++;
+      const next = s.pattern[s.step % s.pattern.length];
+      s.timer = s.step % s.pattern.length === 0 ? 2.4 : (beat.big ? 1.9 : 1.15);
+      if (next.big && !beat.big) s.timer = 1.6;
+    }
+    s.queue = s.queue.filter((q) => {
+      if (q.at > s.t) return true;
+      if (q.kind === 'bit') this.launchBit(q); else this.launchIcon(q);
+      return false;
+    });
+
+    const p = s.pot;
+    p.va += (-190 * p.a - 9 * p.va) * dt; p.a += p.va * dt;
+    p.vy += (-280 * p.y - 13 * p.vy) * dt; p.y += p.vy * dt;
+
+    // Noodles slide along their own axis, with a little spring.
+    s.noodles.forEach((n) => {
+      if (n.wait > 0) { n.wait -= dt; return; }
+      n.v += (-140 * (n.vis - n.target) - 15 * n.v) * dt;
+      n.vis += n.v * dt;
+    });
+
+    const g = 1900;
+    s.icons.forEach((ic) => {
+      if (!ic.on) return;
+      ic.age += dt;
+      ic.vy += g * dt;
+      ic.x += ic.vx * dt;
+      ic.y += ic.vy * dt;
+      ic.rot += ic.vr * dt;
+      ic.vr *= Math.pow(0.55, dt);
+      if (ic.vy > 0 && ic.y > 370) {
+        const cx = Math.max(250, Math.min(645, ic.x));
+        ic.x += (cx - ic.x) * Math.min(1, dt * 10);
+      }
+      if (ic.vy > 0 && ic.y > 490) ic.on = false;
+    });
+    s.tossed.forEach((b) => {
+      if (!b.on) return;
+      b.vy += g * dt; b.x += b.vx * dt; b.y += b.vy * dt; b.rot += b.vr * dt;
+      if (b.vy > 0 && b.y > 480) b.on = false;
+    });
+
+    // Spill: falls down the outside of the pot and fades.
+    s.drip -= dt;
+    if (s.drip <= 0) { s.drip = this.rand(3, 7); if (Math.random() < 0.5) this.spillOne(Math.random() < 0.5 ? -1 : 1, 0.35, 0); }
+    s.spill.forEach((q) => {
+      if (!q.on) return;
+      q.age += dt;
+      if (q.age < 0) return;
+      q.vy += g * 0.8 * dt; q.x += q.vx * dt; q.y += q.vy * dt; q.rot += q.vr * dt;
+      if (q.age > q.life || q.y > 900) q.on = false;
+    });
+
+    // Tossed bits never overlap other bits, icons, or the standing noodles.
+    const bits = s.tossed.filter((b) => b.on && b.y < 470);
+    const sep = (A, B, D, moveB) => {
+      let dx = B.x - A.x, dy = B.y - A.y, d = Math.hypot(dx, dy);
+      if (d >= D) return;
+      if (d < 0.01) { dx = 1; dy = 0; d = 1; }
+      const nx = dx / d, ny = dy / d, push = D - d;
+      if (moveB) { A.x -= nx * push / 2; A.y -= ny * push / 2; B.x += nx * push / 2; B.y += ny * push / 2; }
+      else { A.x -= nx * push; A.y -= ny * push; }
+      const vrel = (B.vx - A.vx) * nx + (B.vy - A.vy) * ny;
+      if (vrel < 0) {
+        const j = -1.5 * vrel / (moveB ? 2 : 1);
+        A.vx -= j * nx; A.vy -= j * ny;
+        if (moveB) { B.vx += j * nx; B.vy += j * ny; }
+      }
+    };
+    for (let pass = 0; pass < 4; pass++) {
+      for (let a = 0; a < bits.length; a++) for (let c = a + 1; c < bits.length; c++) sep(bits[a], bits[c], 54, true);
+    }
+    for (let a = 0; a < bits.length; a++) {
+      s.icons.forEach((ic) => { if (ic.on && ic.y < 470) sep(bits[a], ic, 68, false); });
+      const b = bits[a];
+      s.noodles.forEach((n) => {
+        if (n.vis <= 0.3) return;
+        const hit = this.ptSeg(b.x, b.y, this.noodleSeg(n.ax, n.th, n.vis));
+        const D = 40;
+        if (hit.d >= D || hit.cy > 400) return;
+        let nx = b.x - hit.cx, ny = b.y - hit.cy, d = hit.d;
+        if (d < 0.01) { nx = 0; ny = -1; d = 1; }
+        nx /= d; ny /= d;
+        b.x += nx * (D - d); b.y += ny * (D - d);
+        const vn = b.vx * nx + b.vy * ny;
+        if (vn < 0) { b.vx -= 1.5 * vn * nx; b.vy -= 1.5 * vn * ny; b.vr *= -0.8; }
+      });
+    }
+
+    // Icons never overlap: separate + bounce off each other.
+    const D = 96, live = s.icons.filter((ic) => ic.on);
+    for (let pass = 0; pass < 3; pass++) {
+      for (let a = 0; a < live.length; a++) {
+        for (let c = a + 1; c < live.length; c++) {
+          const A = live[a], B = live[c];
+          if (A.y > 470 && B.y > 470) continue;
+          let dx = B.x - A.x, dy = B.y - A.y;
+          let d = Math.hypot(dx, dy);
+          if (d >= D) continue;
+          if (d < 0.01) { dx = 1; dy = 0; d = 1; }
+          const nx = dx / d, ny = dy / d, push = (D - d) / 2;
+          A.x -= nx * push; A.y -= ny * push;
+          B.x += nx * push; B.y += ny * push;
+          const vrel = (B.vx - A.vx) * nx + (B.vy - A.vy) * ny;
+          if (vrel < 0 && pass === 0) {
+            const j = -1.6 * vrel / 2;
+            A.vx -= j * nx; A.vy -= j * ny;
+            B.vx += j * nx; B.vy += j * ny;
+            A.vr += j * 0.6; B.vr -= j * 0.6;
+          }
+        }
+      }
+    }
+  }
+
+  renderVals() {
+    const s = this.sim || this.initSim();
+    const out = { accent: this.props.accent ?? '#002AFF' };
+    s.icons.forEach((ic, i) => {
+      const swirl = ic.on ? Math.sin(ic.age * 7 + ic.ph) * 4 : 0;
+      const sc = ic.on ? 1 + Math.sin(ic.age * 9 + ic.ph) * 0.05 : 0.8;
+      out['t' + i] = 'translate(' + (ic.x - 40 + swirl).toFixed(1) + 'px,' + (ic.y - 40).toFixed(1) + 'px) rotate(' + ic.rot.toFixed(1) + 'deg) scale(' + sc.toFixed(3) + ')';
+      out['o' + i] = ic.on ? 1 : 0;
+      out['c' + i] = ic.color === 'accent' ? out.accent : '#000000';
+    });
+    const p = s.pot;
+    out.potOrigin = p.side < 0 ? '692px 768px' : '203px 768px';
+    const squash = 1 - p.y * 0.0012;
+    out.potTransform = 'translateY(' + p.y.toFixed(2) + 'px) rotate(' + p.a.toFixed(3) + 'deg) scale(' + (2 - squash).toFixed(4) + ',' + squash.toFixed(4) + ')';
+
+    const CW = 14.6, AY = 413;
+    out.noodles = s.noodles.map((n, i) => {
+      const W = n.len * CW;
+      const vis = Math.max(-1.6, Math.min(n.len, n.vis)) * CW;
+      const th = n.th + Math.sin(s.t * 2.4 + n.ph) * 2;
+      const rad = th * Math.PI / 180;
+      const ux = Math.sin(rad), uy = -Math.cos(rad);
+      const k = vis - W; // inner end sits this far along the axis from the rim anchor
+      const L = n.side === 'L';
+      const rot = L ? 90 + th : th - 90;
+      return {
+        key: i,
+        tf: 'translate(' + (n.ax + ux * k).toFixed(1) + 'px,' + (AY + uy * k).toFixed(1) + 'px) rotate(' + rot.toFixed(2) + 'deg)',
+        op: n.vis > -1 || n.target > 0 ? 1 : 0,
+        left: L ? (-W).toFixed(1) : 0,
+        w: W.toFixed(1),
+        jc: L ? 'flex-end' : 'flex-start',
+        text: n.text
+      };
+    });
+    out.tossed = s.tossed.map((b, i) => ({
+      key: i,
+      tf: 'translate(' + b.x.toFixed(1) + 'px,' + b.y.toFixed(1) + 'px) rotate(' + b.rot.toFixed(1) + 'deg)',
+      op: b.on ? 1 : 0,
+      text: b.text
+    }));
+    out.spill = s.spill.map((q, i) => {
+      const k = q.on && q.age >= 0 ? q.age / q.life : 1;
+      return {
+        key: i,
+        tf: 'translate(' + q.x.toFixed(1) + 'px,' + q.y.toFixed(1) + 'px) rotate(' + q.rot.toFixed(1) + 'deg)',
+        op: q.on && q.age >= 0 ? Math.max(0, 1 - k * k).toFixed(3) : 0,
+        fs: q.fs,
+        text: q.text
+      };
+    });
+    return out;
+  }
+}
+</script>
+</body>
+</html>
