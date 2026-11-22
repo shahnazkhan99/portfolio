@@ -1255,6 +1255,15 @@ class Component extends DCLogic {
         this.setState({ mpXs: 1, mpXn: 1, mpXtr: 'transform 1s cubic-bezier(.65,0,.35,1)', mfIn: false });
         this._mfT = setTimeout(() => this.setState({ mpX: false }), 1050);
       };
+      { let dl = false; try { dl = /^#demos$/i.test(location.hash) || new URLSearchParams(location.search).get('s') === 'demos'; } catch (er) {}
+        if (dl && !this._dlDone) { this._dlDone = true; /* deep link (?p=mem#demos): open straight on "What the interface can fix", as if the 5 steps had just been finished */
+          try { history.scrollRestoration = 'manual'; } catch (er) {}
+          const jump = () => { if (this._dlUser) return; this._wBlock = true; window.scrollTo({ top: fx.getBoundingClientRect().top + window.scrollY, behavior: 'instant' }); };
+          const stopAuto = () => { this._dlUser = true; }; window.addEventListener('wheel', stopAuto, { once: true, passive: true }); window.addEventListener('touchstart', stopAuto, { once: true, passive: true });
+          this.setState({ mpIn: true, mpEnt: false, mpDet: true, mstep: 4, mpImg: false, mpHold: false, mfIn: true, mfDemo: true, mpX: true, mpXl: 0, mpXt: 0, mpXd: 100, mpXs: 40, mpXn: 0, mpXtr: 'none' }, () => { jump(); requestAnimationFrame(jump); });
+          setTimeout(jump, 400); setTimeout(jump, 1200); window.addEventListener('load', () => setTimeout(jump, 50), { once: true }); if (document.fonts) document.fonts.ready.then(() => setTimeout(jump, 50));
+          setTimeout(() => { const c = pr.querySelector('[data-mp-n="4"]'); if (!c) return; const r0 = pr.getBoundingClientRect(), r = c.getBoundingClientRect(), d = Math.max(r.width, 1), cx = r.left - r0.left + r.width / 2, cy = r.top - r0.top + r.height / 2, W = pr.offsetWidth, H = pr.offsetHeight; this.setState({ mpX: true, mpXl: cx - d / 2, mpXt: cy - d / 2, mpXd: d, mpXs: (2 * Math.hypot(Math.max(cx, W - cx), Math.max(cy, H - cy)) + 16) / d, mpXn: 0, mpXtr: 'none' }); }, 1500); /* the blue "5" is left filled, so scrolling back up plays it shrinking into step 5 */
+        } }
       if (window.IntersectionObserver) new IntersectionObserver(([e]) => { if (e.isIntersecting) { if (!this.state.mfIn || !this.state.mfDemo) this.setState({ mfIn: true, mfDemo: true }); } else if (e.boundingClientRect.top > 0 && this.state.mfIn) this.setState({ mfIn: false }); }, { threshold: 0.15 }).observe(fx);
       const p2 = fx.querySelector('[data-mf-panel="3"]'); if (p2 && window.IntersectionObserver) new IntersectionObserver(([e]) => { if (e.isIntersecting && !this.state.mfDemo2) this.setState({ mfDemo2: true }); }, { threshold: 0.4 }).observe(p2);
       const p3 = fx.querySelector('[data-mf-panel="2"]'); if (p3 && window.IntersectionObserver) new IntersectionObserver(([e]) => { const on = e.isIntersecting; if (on && (!this.state.mfDemo3 || !this.state.mfSp)) this.setState({ mfDemo3: true, mfSp: true }); else if (!on && this.state.mfSp) this.setState({ mfSp: false }); }, { threshold: 0.5 }).observe(p3);
