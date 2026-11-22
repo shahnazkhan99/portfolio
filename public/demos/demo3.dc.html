@@ -854,6 +854,7 @@ class Component extends DCLogic {
 
   // ---------- lifecycle ----------
   componentDidMount() {
+    window.__dcPeek = () => { clearTimeout(this._peekT); if (!(this.state || {}).scrubPeek) this.setState({ scrubPeek: true }); this._peekT = setTimeout(() => this.setState({ scrubPeek: false }), 3200); }; /* the page calls this when the demo is tapped on a phone */
     this._t = [];
     this._q = [];
     this._vt = 0;
