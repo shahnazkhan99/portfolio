@@ -1140,7 +1140,7 @@ class Component extends DCLogic {
   scrollTarget(sc) {
     const s = this.state || {};
     const y = sc.scrollTop;
-    if (s.scrollTo != null) { const want = typeof s.scrollTo === 'object' ? this.targetFor(s.scrollTo.sel, s.scrollTo.y) : s.scrollTo; if (want != null) return Math.max(0, Math.min(sc.scrollHeight - sc.clientHeight, want)); }
+    if (s.scrollTo != null) { let want = typeof s.scrollTo === 'object' ? this.targetFor(s.scrollTo.sel, s.scrollTo.y) : s.scrollTo; if (typeof s.scrollTo === 'object') { if (want == null && this._wantFor === s.scrollTo) want = this._want; else if (want != null) { this._wantFor = s.scrollTo; this._want = want; } } if (want != null) return Math.max(0, Math.min(sc.scrollHeight - sc.clientHeight, want)); } /* once the chat has glided to a spot it stays there, even if the thing it glided to (a sticky note) goes away */
     if (s.rewinding) return 0;
     if (s.selS >= 0 || s.words === 0) return y;
     const max = Math.max(0, sc.scrollHeight - sc.clientHeight);
