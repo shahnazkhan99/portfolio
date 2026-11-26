@@ -18,3 +18,4 @@ Push this folder to GitHub, then import it on Vercel or Netlify (framework prese
 
 ## Updating
 Re-export `Portfolio Hero.dc.html` from the design project and replace `src/design/PortfolioHero.html`.
+Edited from my Mac
