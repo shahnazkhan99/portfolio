@@ -8,7 +8,7 @@ npm run build    # static site → dist/
 ```
 
 ## Deploy
-Push this folder to GitHub, then import it on Vercel or Netlify (framework preset: Astro). No settings needed.
+Pushing to main deploys automatically with GitHub pages (live in ~1min)
 
 ## Structure
 - `src/pages/index.astro` — the page; builds to static HTML.
@@ -18,4 +18,3 @@ Push this folder to GitHub, then import it on Vercel or Netlify (framework prese
 
 ## Updating
 Re-export `Portfolio Hero.dc.html` from the design project and replace `src/design/PortfolioHero.html`.
-Edited from my Mac
